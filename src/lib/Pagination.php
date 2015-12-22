@@ -1,7 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: KTE
+ * Created by wayne.
  * Date: 2015/12/18
  * Time: 12:58
  */
