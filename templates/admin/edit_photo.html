@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %} {{action}} photo - {% endblock %}
+{% block content %}
+<div class="ym-wrapper">
+    <div class="ym-wbox">
+
+        <div class="ym-grid">
+            <div class="ym-gbox">
+                <form action="{{path_for('photo_action', {'action':action})}}" method="post" class="ym-form"
+                      enctype="multipart/form-data">
+                    {% if action =='edit' %}
+                    <input type="hidden" name="id" value="{{ id }}">
+                    {% else %}
+
+                    {% for error in form.photo.errors %}
+                    <div class="box error">{{error}}</div>
+                    {% endfor %}
+
+                    <div class="ym-fbox">
+                        <label for="photo">图片</label>
+                        <input type="file" id="photo" name="photo">
+                    </div>
+
+                    {% endif %}
+
+                    {% for error in form.description.errors %}
+                    <div class="box error">{{error}}</div>
+                    {% endfor %}
+
+                    <div class="ym-fbox">
+                        <label for="description">描述</label>
+                        <textarea name="description" id="description"></textarea>
+                    </div>
+                    <div class="ym-fbox">
+                        <label></label>
+                        <button type="submit" class="ym-button ym-save">提交</button>
+                    </div>
+
+
+                </form>
+                <p><a class="ym-button ym-small" href="{{ path_for('admin_index') }}">返回</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

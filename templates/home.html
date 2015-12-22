@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %} Home - {% endblock %}
+{% block content %}
+    <div class="ym-wrapper">
+        <div class="ym-wbox">
+
+            <div class="ym-grid">
+
+                <div class="ym-gbox">
+                    <h2>Recently post</h2>
+                    <p>
+                    </p>
+                    <div id="aniimated-thumbnials">
+                        {% for item in datas %}
+                        <a 
+                        href="{{ path_static() ~ item.photo }}"
+                        data-sub-html="{{ item.description }}"
+                        >
+                            <img src="{{
+                            path_static() ~
+                            item.thumbnail }}">
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %} Login - {% endblock %}
+{% block content %}
+<div class="ym-wrapper">
+    <div class="ym-wbox">
+        <div class="ym-grid">
+            <div class="ym-gbox">
+                <div class="ym-grid">
+                    <h1>Login</h1>
+                    <form action="{{ path_for('sign_in') }}" method="post" class="ym-form ym-g66 ym-columnar">
+                        <div class="ym-fbox">
+                            <label class="ym-label">User</label> <input type="text" name="username" class="form-control">
+                        </div>
+                        <div class="ym-fbox">
+                            <label class="ym-label">Password</label> <input type="password" name="password" class="form-control">
+                        </div>
+                        <div class="ym-fbox">
+                            <button type="submit" class="ym-fbox-button">Sign in</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

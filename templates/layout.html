@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="{{ request.locale_name }}">
+  <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+
+      <!-- END OF DON'T TOUCH -->
+
+      <title>{% block title %}{% endblock %}WayneChen's personal space</title>
+
+      <!-- Mobile viewport optimisation -->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="WayneChen's personal space">
+      <meta name="author" content="waynechen">
+
+      <link href="{{ path_static() }}css/flexible-grids.css" rel="stylesheet" type="text/css">
+      <link href="{{ base_url() }}/static/css/justifiedGallery.min.css" rel="stylesheet" type="text/css">
+      <link href="{{ base_url() }}/static/css/lightgallery.min.css" rel="stylesheet" type="text/css">
+      <!--[if lte IE 7]>
+      <link href="{{ base_url() }}/static/yaml/core/iehacks.css" rel="stylesheet" type="text/css">
+      <![endif]-->
+
+      <!--[if lt IE 9]>
+      <script src="{{ base_url() }}/static/lib/html5shiv/html5shiv.js"></script>
+      <![endif]-->
+  </head>
+
+<body>
+<ul class="ym-skiplinks">
+    <li><a class="ym-skip" href="#nav">Skip to navigation (Press Enter)</a></li>
+    <li><a class="ym-skip" href="#main">Skip to main content (Press Enter)</a></li>
+</ul>
+
+<header>
+    <div class="ym-wrapper">
+        <div class="ym-wbox">
+            <h1>WayneChen's personal space </h1>
+        </div>
+    </div>
+</header>
+<nav id="nav">
+    <div class="ym-wrapper">
+        <div class="ym-hlist">
+            <ul>
+                <li class="active"><a href="{{ path_for('home') }}"<strong>Home</strong></a></li>
+                <li><a href="{{ path_for('archive_list') }}">Archives</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<main>
+        {% block content %}Empty{% endblock %}
+</main>
+<footer>
+    <div class="ym-wrapper">
+        <div class="ym-wbox">
+            <p>© waynechen 2015 – Layout based on <a href="http://www.yaml.de">YAML</a></p>
+        </div>
+    </div>
+</footer>
+
+<!-- full skip link functionality in webkit browsers -->
+<script src="{{ base_url() }}/static/yaml/core/js/yaml-focusfix.js"></script>
+<script src="{{ base_url() }}/static/js/jquery-1.11.3.min.js"></script>
+<script src="{{ base_url() }}/static/js/lightgallery-all.min.js"></script>
+<script src="{{ base_url() }}/static/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    $(document).ready(function() {
+
+        // Animated thumbnails
+        var $animThumb = $('#aniimated-thumbnials');
+        if ($animThumb.length) {
+            $animThumb.justifiedGallery({
+                //border: 6
+            }).on('jg.complete', function () {
+                $animThumb.lightGallery({
+                    thumbnail: true
+                });
+            });
+        }
+    });
+
+</script>
+
+</body>
+</html>
+

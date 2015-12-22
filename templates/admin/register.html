@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %} Register - {% endblock %}
+{% block content %}
+<div class="ym-wrapper">
+    <div class="ym-wbox">
+        <div class="ym-grid">
+            <div class="ym-gbox">
+                <div class="ym-grid">
+                    <h1>Register</h1>
+
+                    <form action="{{path_for('register')}}" method="post" class="ym-form">
+
+
+                        <div class="ym-fbox">
+                            <label for="username" class="ym-label">User Name</label>
+                            <input type="text" id="username" name="username" class="form-control">
+                        </div>
+
+                        <div class="ym-fbox">
+                            <label for="password" class="ym-label">Password</label>
+                            <input type="password" id="password" name="password" class="form-control">
+                        </div>
+                        <div class="ym-fbox">
+                            <button type="submit" class="ym-fbox-button">Submit</button>
+                        </div>
+
+
+                    </form>
+                    <p><a href="{{path_for('login')}}" class="ym-button ym-small">Go Back</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

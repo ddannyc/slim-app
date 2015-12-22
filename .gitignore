@@ -1,0 +1,7 @@
+.idea
+composer.lock
+vendor
+cache/templates
+logs
+public/.htaccess
+public/static/

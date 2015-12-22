@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+
+{% block title %} Admin index - {% endblock %}
+{% block content %}
+<div class="ym-wrapper">
+    <div class="ym-wbox">
+
+        <div class="ym-grid">
+
+            <div class="ym-gbox">
+                <p>Welcome <strong>{{ username }}</strong> ::
+                <a class="ym-button ym-small" href="{{path_for('sign_out')}}">登出</a>
+                </p>
+                {% if datas %}
+
+                <table>
+                    <tr>
+                        <th>Photo</th>
+                        <th>Description</th>
+                        <th>operation</th>
+                    </tr>
+                    {% for item in datas %}
+                    <tr>
+                        <td>
+                            <img src="{{ path_static() ~ item.thumbnail }}" class="flexible">
+                        </td>
+                        <td>
+                            {{ item.description }}
+                        </td>
+                        <td>
+                            <a class="ym-button ym-success ym-small ym-edit"
+                               href="{{path_for('photo_action', {'action':'edit'}, {'id': item.id})}}">
+                                编辑
+                            </a>
+                            &nbsp;&nbsp;&nbsp;
+                            <a href="{{path_for('photo_action', {'action':'delete'}, {'id': item.id})}}" class="ym-button ym-danger
+                ym-delete ym-small">删除</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <p>
+                    {% for page in paginator.items %}
+                    <a href="{{ path_for('admin_index', {}, {'p':page}) }}" class="ym-button ym-xsmall">
+                        {% if page != paginator.current %}
+                        {{ page }}
+                        {% else %}
+                        <b>{{ page }}</b>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                </p>
+
+                {% else %}
+
+                <p>No post found.</p>
+
+                {% endif %}
+
+                <p>
+                    <a class="ym-button ym-success ym-add" href="{{ path_for('photo_action', {'action':'add'}) }}">
+                        添加图片</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+    {% endblock %}
