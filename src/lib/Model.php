@@ -8,12 +8,23 @@
 namespace App\lib;
 
 
+use Slim\Container;
+
+/**
+ * Class Model
+ * @package App\lib
+ *
+ * @property-read \Slim\Container
+ * @property-read \App\lib\Mydb $db
+ */
 abstract class Model {
 
+    protected $container;
     protected $db;
 
-    public function __construct(MyDb $db)
+    public function __construct(Container $container)
     {
-        $this->db = $db;
+        $this->container = $container;
+        $this->db = $this->container->get('db');
     }
 }

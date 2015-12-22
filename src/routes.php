@@ -2,11 +2,10 @@
 // Routes
 $app->get('/test', function($request, $response) {
 
-    var_dump($this->settings['path_static']);
     $photo = $this->model->load('Photo');
     $archive = $this->model->load('Archive');
 
-    var_dump($photo->all(), $archive->all());die;
+    var_dump($photo->all());die;
     //$this->logger->info("Slim-Skeleton '/' route");
     $body = $response->getBody();
     $body->write();
@@ -154,13 +153,14 @@ $app->group('/admintxy', function() {
 
             if ($args['action'] == 'add') {
 
-                list($year, $month) = explode('-', date('Y-m'));
                 $photo = $this->model->load('Photo');
-                $savePath = $photo->initialSavePath($this->settings['path_static'], $year, $month);
-                $file = $request->getUploadedFiles()['photo'];
-                $parsedBody = $request->getParsedBody();
-                var_dump($file, $parsedBody);die;
+                $input = [
+                    'file' => $request->getUploadedFiles()['photo'],
+                    'description' => $request->getParsedBody()['description'],
+                ];
+                $photo->save($input);
             } else {}
+            return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
         }
     })->setName('photo_action');
 })->add(new \App\middleware\Permission($app->getContainer()['router']));

@@ -40,7 +40,7 @@ $container['actual_model'] = $container->factory(function($c) {
     if ($modelName) {
 
         $modelFullName = 'App\\model\\'. $modelName;
-        return new $modelFullName($c->get('db'));
+        return new $modelFullName($c);
     }
     return false;
 });

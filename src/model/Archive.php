@@ -18,4 +18,14 @@ class Archive extends Model
     {
         return $this->db->fetchAll(self::$table);
     }
+
+    public function create($classes, $year, $month)
+    {
+        $data = [
+            'year' => $year,
+            'month' => $month,
+            'classes' => $classes
+        ];
+        return $this->db->save(self::$table, $data);
+    }
 }
