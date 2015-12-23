@@ -95,7 +95,7 @@ class MyDb
         $strFields = implode(', ', $arrFields);
         $strConditions = $this->filter($conditions);
 
-        $sql = "UPDATE ". $table. " SET $strFields WHERE $strConditions";
+        $sql = "UPDATE " . $table . " SET $strFields $strConditions";
         $this->query($sql, array_merge(array_values($data), array_values($conditions)));
         $affected_rows = $this->sth->rowCount();
 

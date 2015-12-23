@@ -25,6 +25,11 @@ class Photo extends Model
         return $this->db->fetchAll(self::$table);
     }
 
+    public function updateById($id, $data)
+    {
+        return $this->db->update(self::$table, $data, ['id' => $id]);
+    }
+
     public function save($data)
     {
         $pathStatic = $this->container->settings['path_static'];

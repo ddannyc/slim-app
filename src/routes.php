@@ -126,41 +126,49 @@ $app->group('/admintxy', function() {
         return $this->renderer->render($response, 'admin/index.html', $output);
     })->setName('admin_index');
 
-    $this->map(['GET', 'POST'], '/photo/{action}', function(\Slim\Http\Request $request, $response, $args) {
+    $this->map(['GET', 'POST'], '/photo/{action}',
+        function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
-        if ($request->isGet()) {
+            if (!$request->isPost()) {
 
-            if ($args['action'] == 'add') {
-                $output['action'] = $args['action'];
-                return $this->renderer->render($response, 'admin/edit_photo.html', $output);
-            } else {
+                if ($args['action'] == 'add') {
+                    $output['action'] = $args['action'];
+                    return $this->renderer->render($response, 'admin/edit_photo.html', $output);
+                } else {
 
-                $queryParams = $request->getQueryParams();
-                if (isset($queryParams['id'])) {
-                    $output = $this->db->fetch('photos', ['id'=>$queryParams['id']]);
-                    if ($output) {
-                        $output['action'] = $args['action'];
-                        return $this->renderer->render($response, 'admin/edit_photo.html', $output);
+                    $queryParams = $request->getQueryParams();
+                    if (isset($queryParams['id'])) {
+                        $output = $this->db->fetch('photos', ['id' => $queryParams['id']]);
+                        if ($output) {
+                            $output['action'] = $args['action'];
+                            return $this->renderer->render($response, 'admin/edit_photo.html', $output);
+                        } else {
+                            return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
+                        }
+
                     } else {
                         return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
                     }
-
-                } else {
-                    return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
                 }
-            }
-        } else {
-
-            if ($args['action'] == 'add') {
+            } else {
 
                 $photo = $this->model->load('Photo');
-                $input = [
-                    'file' => $request->getUploadedFiles()['photo'],
-                    'description' => $request->getParsedBody()['description'],
-                ];
-                $photo->save($input);
-            } else {}
-            return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
-        }
-    })->setName('photo_action');
+                if ($args['action'] == 'add') {
+
+                    $input = [
+                        'file' => $request->getUploadedFiles()['photo'],
+                        'description' => $request->getParsedBody()['description'],
+                    ];
+                    $photo->save($input);
+                } else {
+
+                    $parsePost = $request->getParsedBody();
+                    $input = [
+                        'description' => $parsePost['description']
+                    ];
+                    $photo->updateById($parsePost['id'], $input);
+                }
+                return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
+            }
+        })->setName('photo_action');
 })->add(new \App\middleware\Permission($app->getContainer()['router']));
