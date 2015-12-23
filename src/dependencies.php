@@ -49,3 +49,13 @@ $container['actual_model'] = $container->factory(function($c) {
 $container['pagination'] = function($c) {
     return new \App\lib\Pagination();
 };
+
+// cookie
+$container['cookie'] = function ($c) {
+
+    $request = $c->get('request');
+    $parseCookies = \Slim\Http\Cookies::parseHeader($request->getHeader('cookie'));
+    $cookie = new \Slim\Http\Cookies($parseCookies);
+
+    return $cookie;
+};

@@ -1,14 +1,15 @@
 <?php
 // Routes
-$app->get('/test', function($request, $response) {
+$app->get('/test', function (\Slim\Http\Request $request, \Slim\Http\Response $response) {
 
-    $photo = $this->model->load('Photo');
-    $archive = $this->model->load('Archive');
+    $this->cookie->set('hello', 'world');
 
-    var_dump($photo->all());die;
-    //$this->logger->info("Slim-Skeleton '/' route");
-    $body = $response->getBody();
-    $body->write();
+    var_dump($this->cookie->get('hello'));
+
+    foreach ($this->cookie->toHeaders() as $val) {
+        var_dump($val);
+        $response->withAddedHeader('cookie', $val);
+    }
     return $response;
 });
 
