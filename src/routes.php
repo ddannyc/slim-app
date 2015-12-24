@@ -17,7 +17,7 @@ $app->get('/', function ($request, $response) {
 
     $this->db->orderBy('id', 'desc');
     $this->db->limit(30);
-    $output['datas'] = $this->db->fetchAll('photos');
+    $output['datas'] = $this->db->fetchAll('photos', ['user_id' => $_SESSION['user']['id']]);
 
     return $this->renderer->render($response, 'home.html', $output);
 })->setName('home')->add(new \App\middleware\Permission($app->getContainer()['router']));
@@ -121,7 +121,7 @@ $app->group('/admintxy', function() {
 
         $this->db->orderBy('id', 'desc');
         $this->db->limit(['offset' => ($currentPage-1)*$perNums, 'count'=>$perNums]);
-        $output['datas'] = $this->db->fetchAll('photos');
+        $output['datas'] = $this->db->fetchAll('photos', ['user_id' => $_SESSION['user']['id']]);
 
         $output['username'] = $_SESSION['user']['name'];
         return $this->renderer->render($response, 'admin/index.html', $output);
