@@ -25,9 +25,9 @@ class Photo extends Model
         return $this->db->fetchAll(self::$table);
     }
 
-    public function updateById($id, $data)
+    public function updateById($photoId, $userId, $data)
     {
-        return $this->db->update(self::$table, $data, ['id' => $id]);
+        return $this->db->update(self::$table, $data, ['id' => $photoId, 'user_id' => $userId]);
     }
 
     public function save($data)
@@ -42,7 +42,7 @@ class Photo extends Model
 
         // Create archive
         $archive = $this->container->model->load('Archive');
-        $archive->create(self::ARCHIVE_CLASSES, $year, $month);
+        $archive->create(self::ARCHIVE_CLASSES, $year, $month, $data['user_id']);
 
         $extName = pathinfo($data['file']->getClientFilename(), PATHINFO_EXTENSION);
         $filename = SomeFun::guidv4();
@@ -56,7 +56,7 @@ class Photo extends Model
         $this->copyResize($pathMoveTo, $thumbMoveTo, self::MIN_WIDTH, self::MIN_HEIGHT);
 
         $dataSave = [
-            'user_id' => $_SESSION['user']['id'],
+            'user_id' => $data['user_id'],
             'photo' => $pathForDb. $filename. ".$extName",
             'thumbnail' => $pathForDb. $filename. "_thumbnail.$extName",
             'description' => $data['description']

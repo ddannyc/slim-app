@@ -15,12 +15,12 @@ class Pagination
     private $currentPage;
     private $pageDisplayNums;
 
-    public function __construct()
+    public function __construct($perNums, $pageDisplayNums)
     {
-        $this->perNums = 10;
+        $this->perNums = $perNums;
+        $this->pageDisplayNums = $pageDisplayNums;
         $this->totalPage = 0;
         $this->currentPage = 1;
-        $this->pageDisplayNums = 3;
     }
 
     public function setPerPage($perPage)
@@ -28,11 +28,10 @@ class Pagination
         $this->perNums = $perPage;
     }
 
-    public function show($totalNums, $perNums, $currentPage)
+    public function show($totalNums, $currentPage)
     {
-        $this->perNums = $perNums;
         $this->currentPage = $currentPage > 0 ? $currentPage: 1;
-        $this->totalPage = ceil(floatval($totalNums / $perNums));
+        $this->totalPage = ceil(floatval($totalNums / $this->perNums));
 
         $result = [];
         $halfRangeSize = floor($this->pageDisplayNums / 2);

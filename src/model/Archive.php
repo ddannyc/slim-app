@@ -19,12 +19,13 @@ class Archive extends Model
         return $this->db->fetchAll(self::$table);
     }
 
-    public function create($classes, $year, $month)
+    public function create($classes, $year, $month, $userId)
     {
         $data = [
             'year' => $year,
             'month' => $month,
-            'classes' => $classes
+            'classes' => $classes,
+            'user_id' => $userId
         ];
         return $this->db->save(self::$table, $data);
     }

@@ -1,32 +1,23 @@
 <?php
 // Routes
 $app->get('/test', function (\Slim\Http\Request $request, \Slim\Http\Response $response) {
-
-    $this->cookie->set('hello', 'world');
-
-    var_dump($this->cookie->get('hello'));
-
-    foreach ($this->cookie->toHeaders() as $val) {
-        var_dump($val);
-        $response->withAddedHeader('cookie', $val);
-    }
     return $response;
-});
+})->setName('test');
 
 $app->get('/', function ($request, $response) {
 
     $this->db->orderBy('id', 'desc');
     $this->db->limit(30);
-    $output['datas'] = $this->db->fetchAll('photos', ['user_id' => $_SESSION['user']['id']]);
+    $output['datas'] = $this->db->fetchAll('photos', ['user_id' => $this->user['id']]);
 
     return $this->renderer->render($response, 'home.html', $output);
-})->setName('home')->add(new \App\middleware\Permission($app->getContainer()['router']));
+})->setName('home');
 
 $app->group('/archives', function() {
 
     $this->get('', function($request, $response){
 
-        $srcArchives = $this->db->fetchAll('archives', ['classes'=>1]);
+        $srcArchives = $this->db->fetchAll('archives', ['user_id' => $this->user['id'], 'classes' => 1]);
 
         $output['archives'] = $srcArchives;
         $output['datas'] = [];
@@ -36,12 +27,13 @@ $app->group('/archives', function() {
 
     $this->get('/{year}/{month}', function($request, $response, $args){
 
-        $srcArchives = $this->db->fetchAll('archives', ['classes'=>1]);
+        $srcArchives = $this->db->fetchAll('archives', ['user_id' => $this->user['id'], 'classes' => 1]);
         $output['archives'] = $srcArchives;
 
         $timeFrom = mktime(0, 0, 0, $args['month'], 1, $args['year']);
         $timeTo = mktime(0, 0, 0, $args['month'] + 1, 1, $args['year']);
         $filter = [
+            'user_id' => $this->user['id'],
             'created >=' => date('Y-m-d H:i:s', $timeFrom),
             'created <' => date('Y-m-d H:i:s', $timeTo)
         ];
@@ -49,7 +41,7 @@ $app->group('/archives', function() {
 
         return $this->renderer->render($response, 'archives.html', $output);
     })->setName('archives');
-})->add(new \App\middleware\Permission($app->getContainer()['router']));
+});
 
 $app->group('/login', function() {
     $this->get('', function($request, $response) {
@@ -67,7 +59,7 @@ $app->group('/login', function() {
             $checkPasswd = md5($user['salt']. $post['password']);
             if ($checkPasswd == $user['password']) {
                 $_SESSION['user'] = ['id'=>$user['id'], 'name'=>$user['name']];
-                return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('home'));
+                return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
             }
         }
 
@@ -82,7 +74,7 @@ $app->group('/login', function() {
     })->setName('sign_out');
 });
 
-$app->map(['GET', 'POST'], '/register', function($request, $response) {
+$app->map(['GET', 'POST'], '/registry', function ($request, $response) {
 
     if (!$request->isPost()) {
         return $this->renderer->render($response, 'admin/register.html');
@@ -103,27 +95,27 @@ $app->map(['GET', 'POST'], '/register', function($request, $response) {
         $response = $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('login'));
         return $response;
     }
-})->setName('register');
+})->setName('registry');
 
-$app->group('/admintxy', function() {
+$app->group('/admin', function () {
 
     $this->get('', function($request, $response) {
 
-        $totalNums = $this->db->getRowCount('photos');
+        $totalNums = $this->db->getRowCount('photos', ['user_id' => $this->user['id']]);
         $queryParams = $request->getQueryParams();
         $currentPage = isset($queryParams['p'])? $queryParams['p']: 1;
-        $perNums = 3;
-        $pagination = $this->pagination->show($totalNums, $perNums, $currentPage);
+        $pagination = $this->pagination->show($totalNums, $currentPage);
         foreach ($pagination as $val) {
             $output['paginator']['items'][] = $val;
         }
         $output['paginator']['current'] = $currentPage;
 
         $this->db->orderBy('id', 'desc');
+        $perNums = $this->get('settings')['pagination']['per_nums'];
         $this->db->limit(['offset' => ($currentPage-1)*$perNums, 'count'=>$perNums]);
-        $output['datas'] = $this->db->fetchAll('photos', ['user_id' => $_SESSION['user']['id']]);
+        $output['datas'] = $this->db->fetchAll('photos', ['user_id' => $this->user['id']]);
 
-        $output['username'] = $_SESSION['user']['name'];
+        $output['user'] = $this->user;
         return $this->renderer->render($response, 'admin/index.html', $output);
     })->setName('admin_index');
 
@@ -139,7 +131,7 @@ $app->group('/admintxy', function() {
 
                     $queryParams = $request->getQueryParams();
                     if (isset($queryParams['id'])) {
-                        $output = $this->db->fetch('photos', ['id' => $queryParams['id']]);
+                        $output = $this->db->fetch('photos', ['id' => $queryParams['id'], 'user_id' => $this->user['id']]);
                         if ($output) {
                             $output['action'] = $args['action'];
                             return $this->renderer->render($response, 'admin/edit_photo.html', $output);
@@ -159,6 +151,7 @@ $app->group('/admintxy', function() {
                     $input = [
                         'file' => $request->getUploadedFiles()['photo'],
                         'description' => $request->getParsedBody()['description'],
+                        'user_id' => $this->user['id']
                     ];
                     $photo->save($input);
                 } else {
@@ -167,9 +160,9 @@ $app->group('/admintxy', function() {
                     $input = [
                         'description' => $parsePost['description']
                     ];
-                    $photo->updateById($parsePost['id'], $input);
+                    $photo->updateById($parsePost['id'], $this->user['id'], $input);
                 }
                 return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
             }
         })->setName('photo_action');
-})->add(new \App\middleware\Permission($app->getContainer()['router']));
+});

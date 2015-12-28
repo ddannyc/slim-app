@@ -46,12 +46,12 @@ class MyDb
         return self::$instance;
     }
 
-    public function getRowCount($table, $condition = [])
+    public function getRowCount($table, $conditions = [])
     {
         $strFields = 'count(*) as cnt';
-        $strWhere = $this->filter($condition);
+        $strWhere = $this->filter($conditions);
         $sql = "SELECT $strFields FROM $table $strWhere";
-        $this->query($sql);
+        $this->query($sql, array_values($conditions));
 
         $result = $this->sth->fetch(PDO::FETCH_ASSOC);
 

@@ -8,9 +8,30 @@
         <div class="ym-grid">
 
             <div class="ym-gbox">
-                <p>Welcome <strong>{{ username }}</strong> ::
-                <a class="ym-button ym-small" href="{{path_for('sign_out')}}">登出</a>
+                {% if user.id == 0 %}
+                <p class="box info">Hi <strong>{{ user.name }}</strong>, you can login to create your own albums.<br>
+                    If you don't have a account, it would be very easy to create one, <a class="ym-button ym-small"
+                                                                                         href="{{ path_for('registry') }}">Registy
+                        now</a>
                 </p>
+
+                <form action="{{ path_for('sign_in') }}" method="post" class="ym-form">
+                    <div class="ym-fbox">
+                        <label class="ym-label">User</label> <input type="text" name="username" class="form-control">
+                    </div>
+                    <div class="ym-fbox">
+                        <label class="ym-label">Password</label> <input type="password" name="password"
+                                                                        class="form-control">
+                    </div>
+                    <div class="ym-fbox">
+                        <button type="submit" class="ym-fbox-button">Sign in</button>
+                    </div>
+                </form>
+                {% else %}
+                <p>Welcome <strong>{{ user.name }}</strong> ::
+                    <a class="ym-button ym-small" href="{{path_for('sign_out')}}">Sign out</a>
+                </p>
+                {% endif %}
                 {% if datas %}
 
                 <table>
@@ -30,11 +51,11 @@
                         <td>
                             <a class="ym-button ym-success ym-small ym-edit"
                                href="{{path_for('photo_action', {'action':'edit'}, {'id': item.id})}}">
-                                编辑
+                                edit
                             </a>
                             &nbsp;&nbsp;&nbsp;
                             <a href="{{path_for('photo_action', {'action':'delete'}, {'id': item.id})}}" class="ym-button ym-danger
-                ym-delete ym-small">删除</a>
+                ym-delete ym-small">delete</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -59,7 +80,7 @@
 
                 <p>
                     <a class="ym-button ym-success ym-add" href="{{ path_for('photo_action', {'action':'add'}) }}">
-                        添加图片</a>
+                        add photo</a>
                 </p>
             </div>
         </div>

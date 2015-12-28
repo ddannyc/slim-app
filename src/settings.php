@@ -21,5 +21,10 @@ return [
         ],
         // static path
         'path_static' => __DIR__ . '/../public/static/',
+        // Pagination
+        'pagination' => [
+            'per_nums' => 5,
+            'page_display_nums' => 3,
+        ],
     ],
 ];

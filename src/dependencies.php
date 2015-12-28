@@ -47,7 +47,8 @@ $container['actual_model'] = $container->factory(function($c) {
 
 // pagination
 $container['pagination'] = function($c) {
-    return new \App\lib\Pagination();
+    $settings = $c->get('settings')['pagination'];
+    return new \App\lib\Pagination($settings['per_nums'], $settings['page_display_nums']);
 };
 
 // cookie
@@ -58,4 +59,19 @@ $container['cookie'] = function ($c) {
     $cookie = new \Slim\Http\Cookies($parseCookies);
 
     return $cookie;
+};
+
+// user
+$container['user'] = function ($c) {
+
+    $user = ['id' => 0, 'name' => 'guest'];
+    if (isset($_SESSION['user'])) {
+        $user = $_SESSION['user'];
+    }
+    return $user;
+};
+
+// current route name
+$container['current_path'] = function ($c) {
+    return $c->get('request')->getUri()->getPath();
 };
