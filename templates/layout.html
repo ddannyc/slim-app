@@ -14,14 +14,14 @@
       <meta name="author" content="waynechen">
 
       <link href="{{ path_static() }}css/flexible-grids.css" rel="stylesheet" type="text/css">
-      <link href="{{ base_url() }}/static/css/justifiedGallery.min.css" rel="stylesheet" type="text/css">
-      <link href="{{ base_url() }}/static/css/lightgallery.min.css" rel="stylesheet" type="text/css">
+      <link href="{{ path_static() }}css/justifiedGallery.min.css" rel="stylesheet" type="text/css">
+      <link href="{{ path_static() }}css/lightgallery.min.css" rel="stylesheet" type="text/css">
       <!--[if lte IE 7]>
-      <link href="{{ base_url() }}/static/yaml/core/iehacks.css" rel="stylesheet" type="text/css">
+      <link href="{{ path_static() }}yaml/core/iehacks.css" rel="stylesheet" type="text/css">
       <![endif]-->
 
       <!--[if lt IE 9]>
-      <script src="{{ base_url() }}/static/lib/html5shiv/html5shiv.js"></script>
+      <script src="{{ path_static() }}lib/html5shiv/html5shiv.js"></script>
       <![endif]-->
   </head>
 
@@ -61,10 +61,10 @@
 </footer>
 
 <!-- full skip link functionality in webkit browsers -->
-<script src="{{ base_url() }}/static/yaml/core/js/yaml-focusfix.js"></script>
-<script src="{{ base_url() }}/static/js/jquery-1.11.3.min.js"></script>
-<script src="{{ base_url() }}/static/js/lightgallery-all.min.js"></script>
-<script src="{{ base_url() }}/static/js/jquery.justifiedGallery.min.js"></script>
+<script src="{{ path_static() }}yaml/core/js/yaml-focusfix.js"></script>
+<script src="{{ path_static() }}js/jquery-1.11.3.min.js"></script>
+<script src="{{ path_static() }}js/lightgallery-all.min.js"></script>
+<script src="{{ path_static() }}js/jquery.justifiedGallery.min.js"></script>
 <script>
     $(document).ready(function() {
 
@@ -82,7 +82,9 @@
     });
 
 </script>
-
+<pre>
+    {{ dump(route) }}
+</pre>
 </body>
 </html>
 

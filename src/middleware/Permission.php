@@ -8,32 +8,33 @@
 namespace App\middleware;
 
 
-
+use Interop\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Slim\Router;
 
-class Permission {
 
-    private $router;
+class Permission
+{
+    private $container;
 
-    public function __construct(Router $router)
+    public function __construct(ContainerInterface $container)
     {
-        $this->router = $router;
+        $this->container = $container;
     }
+
     /**
      * middleware invokable class
      *
-     * @param  \Psr\Http\Message\ServerRequestInterface $request  PSR7 request
-     * @param  \Psr\Http\Message\ResponseInterface      $response PSR7 response
-     * @param  callable                                 $next     Next middleware
-     *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @param RequestInterface $request PSR7 request
+     * @param  \Psr\Http\Message\ResponseInterface $response PSR7 response
+     * @param  callable $next Next middleware
+     * @return ResponseInterface
      */
     public function __invoke(RequestInterface $request, ResponseInterface $response, callable $next)
     {
-        if (!isset($_SESSION['user'])) {
-            return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('login'));
+        $user = $this->container->get('user');
+        if ($user['id'] === 0) {
+            return $response->withStatus(302)->withHeader('Location ', $this->container->get('router')->pathFor('admin_index'));
         }
 
         if ($next) {

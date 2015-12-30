@@ -5,12 +5,18 @@ $container = $app->getContainer();
 $container['renderer'] = function ($c) {
     $settings = $c->get('settings')['renderer'];
     $view = new \Slim\Views\Twig($settings['template_path'], [
-        'cache' => $settings['cache_path']
+        'cache' => $settings['cache_path'],
+        'debug' => true,
     ]);
     $view->addExtension(new \Slim\Views\TwigExtension(
         $c['router'],
         $c['request']->getUri()
     ));
+    $view->addExtension(new Twig_Extension_Debug());
+
+    // view default value
+    $view->offsetSet('request', $c->get('request'));
+    $view->offsetSet('route', $c->get('request')->getAttribute('route'));
 
     return $view;
 };
@@ -39,7 +45,7 @@ $container['actual_model'] = $container->factory(function($c) {
     $modelName = $c->get('model_name');
     if ($modelName) {
 
-        $modelFullName = 'App\\model\\'. $modelName;
+        $modelFullName = 'App\\models\\' . $modelName;
         return new $modelFullName($c);
     }
     return false;
