@@ -7,6 +7,7 @@
 namespace App\lib;
 
 use PDO;
+use Psr\Log\InvalidArgumentException;
 
 /**
  * Class MyDb
@@ -20,8 +21,6 @@ class MyDb
     protected $db;
     private $debug;
     private $sth = null;
-    private $orderBy = [];
-    private $limit = [];
 
     private function __construct($dsn, $user, $passwd, $debug)
     {
@@ -32,7 +31,7 @@ class MyDb
     private function __clone(){}
 
     /**
-     * 单例对象只会初始化一次
+     * Singleton class
      * @param $dsn
      * @param $user
      * @param $passwd
@@ -62,25 +61,27 @@ class MyDb
         }
     }
 
-    public function fetch($table, $conditions = [], $fields = '', $limit = [])
+    public function fetch($table, $conditions = [], $fields = '', $limit = [], $orderBy = [])
     {
         $strFields = $this->selectField($fields);
         $strWhere = $this->filter($conditions);
 
-        $this->limit($limit);
-        $sql = "SELECT $strFields FROM " . $table. $strWhere. $this->getOrderBy(). $this->getLimit();
+        $strOrder = $this->getOrderBy($orderBy);
+        $strLimit = $this->getLimit($limit);
+        $sql = "SELECT $strFields FROM " . $table . $strWhere . $strOrder . $strLimit;
         $this->query($sql, array_values($conditions));
 
         return $this->sth->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function fetchAll($table, $conditions = [], $fields = '', $limit = [])
+    public function fetchAll($table, $conditions = [], $fields = '', $limit = [], $orderBy = [])
     {
         $strFields = $this->selectField($fields);
         $strWhere = $this->filter($conditions);
 
-        $this->limit($limit);
-        $sql = "SELECT $strFields FROM " . $table. $strWhere. $this->getOrderBy(). $this->getLimit();
+        $strOrder = $this->getOrderBy($orderBy);
+        $strLimit = $this->getLimit($limit);
+        $sql = "SELECT $strFields FROM " . $table . $strWhere . $strOrder . $strLimit;
         $this->query($sql, array_values($conditions));
 
         return $this->sth->fetchAll(PDO::FETCH_ASSOC);
@@ -102,7 +103,7 @@ class MyDb
         return $affected_rows;
     }
 
-    public function save($table, $data)
+    public function insert($table, $data)
     {
         $fields = array_keys($data);
         $strFields = implode(', ', $fields);
@@ -113,30 +114,6 @@ class MyDb
         $this->query($sql, array_values($data));
 
         return $this->db->lastInsertId();
-    }
-
-    public function limit($limit)
-    {
-        if ($limit) {
-
-            if (!is_array($limit)) {
-                $this->limit = ['count' => $limit];
-            } else {
-                $this->limit = $limit;
-            }
-        }
-    }
-
-    public function orderBy($order, $direct = 'DESC')
-    {
-        $str_order = is_string($order)? $order: (is_array($order)? implode(', ', $order): '');
-
-        if ($str_order) {
-            $this->orderBy = [
-                'order' => $order,
-                'direct' => $direct
-            ];
-        }
     }
 
     public function lastRowCount()
@@ -182,15 +159,6 @@ class MyDb
         return $strWhere;
     }
 
-    private function getOrderBy()
-    {
-        $result = '';
-        if ($this->orderBy) {
-            $result = ' ORDER BY '. $this->orderBy['order']. ' '. $this->orderBy['direct'];
-        }
-        return $result;
-    }
-
     private function query($sql, $values = [])
     {
         $this->sth = $this->db->prepare($sql);
@@ -201,21 +169,36 @@ class MyDb
         if ($this->debug) {
             echo '<pre>';
             echo "<code>$sql</code>";
-            print_r($this->db->errorInfo());
+            var_dump($this->db->errorInfo());
             echo '</pre>';
         }
     }
 
-    private function getLimit()
+    private function getOrderBy(array $order)
     {
-        $limit = $this->limit;
-        $result = '';
-        if ($limit) {
-            if (sizeof($limit) > 1) {
-                $result = ' LIMIT '. $limit['offset']. ', '. $limit['count'];
-            } else {
-                $result = ' LIMIT '. $limit['count'];
-            }
+        if (!$order) {
+            return '';
+        }
+        if (!(isset($order['order']) && isset($order['direct']))) {
+            throw new InvalidArgumentException('Params order by must set order and direct indexs.');
+        }
+
+        return ' ORDER BY ' . $order['order'] . ' ' . $order['direct'];
+    }
+
+    private function getLimit(array $limit)
+    {
+        if (!$limit) {
+            return '';
+        }
+        if (!isset($limit['count'])) {
+            throw new InvalidArgumentException('Params limit must set count index');
+        }
+
+        if (!isset($limit['offset'])) {
+            $result = ' LIMIT ' . $limit['count'];
+        } else {
+            $result = ' LIMIT ' . $limit['offset'] . ', ' . $limit['count'];
         }
         return $result;
     }

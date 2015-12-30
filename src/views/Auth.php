@@ -10,13 +10,21 @@ namespace App\views;
 
 use Interop\Container\ContainerInterface;
 
+/**
+ * Class Auth
+ * @package App\views
+ *
+ * @property-read \App\models\User $user
+ */
 class Auth
 {
     private $container;
+    private $user;
 
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+        $this->user = $this->model->load('User');
     }
 
     public function __get($key)
@@ -31,7 +39,9 @@ class Auth
         } else {
 
             $post = $request->getParsedBody();
-            $user = $this->db->fetch('users', ['name' => $post['username']], ['id', 'name', 'salt', 'password']);
+            $user = $this->user->select(['id', 'name', 'salt', 'password'])
+                ->filter(['name' => $post['username']])
+                ->fetch();
 
             if ($user) {
 
@@ -60,7 +70,7 @@ class Auth
         } else {
 
             $post = $request->getParsedBody();
-            $user = $this->db->fetch('users', ['name' => $post['username']], 'name');
+            $user = $this->user->select('name')->filter(['name' => $post['username']])->fetch();
 
             if (!$user) {
                 $salt = time();
@@ -69,7 +79,7 @@ class Auth
                     'salt' => $salt,
                     'password' => md5($salt . $post['password'])
                 ];
-                $this->db->save('users', $newUser);
+                $this->user->insert($newUser);
             }
             $response = $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('login'));
             return $response;

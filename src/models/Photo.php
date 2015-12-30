@@ -5,7 +5,7 @@
  * Time: 16:23
  */
 
-namespace App\model;
+namespace App\models;
 
 
 use App\lib\Model;
@@ -13,24 +13,25 @@ use App\thirdparty\SomeFun;
 
 class Photo extends Model
 {
+    protected $table = 'photos';
     const MAX_WIDTH = 800;
     const MAX_HEIGHT = 600;
     const MIN_WIDTH = 200;
     const MIN_HEIGHT = 200;
     const ARCHIVE_CLASSES = 1;
-    private static $table = 'photos';
 
     public function all()
     {
-        return $this->db->fetchAll(self::$table);
+        return $this->fetchAll();
     }
 
     public function updateById($photoId, $userId, $data)
     {
-        return $this->db->update(self::$table, $data, ['id' => $photoId, 'user_id' => $userId]);
+        $this->filter(['id' => $photoId, 'user_id' => $userId]);
+        return $this->update($data);
     }
 
-    public function save($data)
+    public function save(array $data)
     {
         $pathStatic = $this->container->settings['path_static'];
         list($year, $month) = explode('-', date('Y-m'));
@@ -61,7 +62,7 @@ class Photo extends Model
             'thumbnail' => $pathForDb. $filename. "_thumbnail.$extName",
             'description' => $data['description']
         ];
-        return $this->db->save(self::$table, $dataSave);
+        return $this->insert($dataSave);
     }
 
     private function copyResize($src, $dst, $resize_width, $resize_height)

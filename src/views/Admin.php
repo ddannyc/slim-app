@@ -27,7 +27,10 @@ class Admin
 
     public function index(Request $request, Response $response)
     {
-        $totalNums = $this->db->getRowCount('photos', ['user_id' => $this->user['id']]);
+        $filters = ['user_id' => $this->user['id']];
+        /* @var \App\models\Photo $photo */
+        $photo = $this->model->load('Photo');
+        $totalNums = $photo->filter($filters)->rowCount();
         $queryParams = $request->getQueryParams();
         $currentPage = isset($queryParams['p']) ? $queryParams['p'] : 1;
         $pagination = $this->pagination->show($totalNums, $currentPage);
@@ -36,10 +39,11 @@ class Admin
         }
         $output['paginator']['current'] = $currentPage;
 
-        $this->db->orderBy('id', 'desc');
         $perNums = $this->settings['pagination']['per_nums'];
-        $this->db->limit(['offset' => ($currentPage - 1) * $perNums, 'count' => $perNums]);
-        $output['datas'] = $this->db->fetchAll('photos', ['user_id' => $this->user['id']]);
+        $output['datas'] = $photo->filter(['user_id' => $this->user['id']])
+            ->orderBy('id', 'desc')
+            ->limit($perNums, ($currentPage - 1) * $perNums)
+            ->fetchAll();
 
         $output['user'] = $this->user;
         return $this->renderer->render($response, 'admin/index.html', $output);
@@ -47,6 +51,8 @@ class Admin
 
     public function photoAction(Request $request, Response $response, $args)
     {
+        /* @var \App\models\Photo $photo */
+        $photo = $this->model->load('Photo');
         if (!$request->isPost()) {
 
             if ($args['action'] == 'add') {
@@ -56,7 +62,8 @@ class Admin
 
                 $queryParams = $request->getQueryParams();
                 if (isset($queryParams['id'])) {
-                    $output = $this->db->fetch('photos', ['id' => $queryParams['id'], 'user_id' => $this->user['id']]);
+
+                    $output = $photo->filter(['id' => $queryParams['id'], 'user_id' => $this->user['id']])->fetch();
                     if ($output) {
                         $output['action'] = $args['action'];
                         return $this->renderer->render($response, 'admin/edit_photo.html', $output);
@@ -70,7 +77,6 @@ class Admin
             }
         } else {
 
-            $photo = $this->model->load('Photo');
             if ($args['action'] == 'add') {
 
                 $input = [

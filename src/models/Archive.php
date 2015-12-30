@@ -5,18 +5,18 @@
  * Time: 16:23
  */
 
-namespace App\model;
+namespace App\models;
 
 
 use App\lib\Model;
 
 class Archive extends Model
 {
-    private static $table = 'archives';
+    protected $table = 'archives';
 
     public function all()
     {
-        return $this->db->fetchAll(self::$table);
+        return $this->fetchAll();
     }
 
     public function create($classes, $year, $month, $userId)
@@ -27,6 +27,6 @@ class Archive extends Model
             'classes' => $classes,
             'user_id' => $userId
         ];
-        return $this->db->save(self::$table, $data);
+        return $this->insert($data);
     }
 }

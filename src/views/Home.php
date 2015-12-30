@@ -28,9 +28,12 @@ class Home
 
     public function index(Request $request, Response $response)
     {
-        $this->db->orderBy('id', 'desc');
-        $this->db->limit(30);
-        $output['datas'] = $this->db->fetchAll('photos', ['user_id' => $this->user['id']]);
+        /* @var \App\models\Photo $photo */
+        $photo = $this->model->load('Photo');
+        $output['datas'] = $photo->filter(['user_id' => $this->user['id']])
+            ->orderBy('id', 'desc')
+            ->limit(20)
+            ->fetchAll();
 
         return $this->renderer->render($response, 'home.html', $output);
     }
