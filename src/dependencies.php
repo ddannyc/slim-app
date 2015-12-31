@@ -14,10 +14,6 @@ $container['renderer'] = function ($c) {
     ));
     $view->addExtension(new Twig_Extension_Debug());
 
-    // view default value
-    $view->offsetSet('request', $c->get('request'));
-    $view->offsetSet('route', $c->get('request')->getAttribute('route'));
-
     return $view;
 };
 // monolog
