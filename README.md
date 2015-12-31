@@ -1,2 +1,4 @@
 # slim-app
-Just a study project base on Slim Framework
+## Happy new year 2016
+
+A little album site base on Slim 3 framework(https://github.com/slimphp/Slim)
