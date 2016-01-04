@@ -54,7 +54,7 @@ class Auth
                 }
             }
 
-            $this->container['flash']->set('login', 'Invalid username or password input.');
+            $this->container->flash->set('admin_index', 'Invalid username or password input.');
             return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
         }
     }
@@ -73,6 +73,12 @@ class Auth
         } else {
 
             $post = $request->getParsedBody();
+            if (!($post['username'] && $post['password'])) {
+                $this->container->flash->set('admin_index', 'Username and password are required.');
+                $response = $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
+                return $response;
+            }
+
             $user = $this->user->select('name')->filter(['name' => $post['username']])->fetch();
 
             if (!$user) {
@@ -84,7 +90,7 @@ class Auth
                 ];
                 $this->user->insert($newUser);
             }
-            $response = $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('login'));
+            $response = $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
             return $response;
         }
     }
