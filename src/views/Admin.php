@@ -82,14 +82,16 @@ class Admin
                 $input = [
                     'file' => $request->getUploadedFiles()['photo'],
                     'description' => $request->getParsedBody()['description'],
-                    'user_id' => $this->user['id']
+                    'user_id' => $this->user['id'],
+                    'created' => date('Y-m-d H:i:s'),
                 ];
                 $photo->save($input);
             } else {
 
                 $parsePost = $request->getParsedBody();
                 $input = [
-                    'description' => $parsePost['description']
+                    'description' => $parsePost['description'],
+                    'edited' => date('Y-m-d H:i:s'),
                 ];
                 $photo->updateById($parsePost['id'], $this->user['id'], $input);
             }

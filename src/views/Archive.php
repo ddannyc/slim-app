@@ -29,7 +29,9 @@ class Archive
 
         /* @var \App\models\Archive $archive */
         $archive = $this->model->load('Archive');
-        $srcArchives = $archive->filter(['user_id' => $this->user['id'], 'classes' => 1])->fetchAll();
+        $srcArchives = $archive->filter(['user_id' => $this->user['id'], 'classes' => 1])
+            ->orderBy('id', 'desc')
+            ->fetchAll();
 
         $output['archives'] = $srcArchives;
         $output['datas'] = [];
@@ -41,7 +43,9 @@ class Archive
     {
         /* @var \App\models\Archive $archive */
         $archive = $this->model->load('Archive');
-        $srcArchives = $archive->filter(['user_id' => $this->user['id'], 'classes' => 1])->fetchAll();
+        $srcArchives = $archive->filter(['user_id' => $this->user['id'], 'classes' => 1])
+            ->orderBy('id', 'desc')
+            ->fetchAll();
         $output['archives'] = $srcArchives;
 
         $timeFrom = mktime(0, 0, 0, $args['month'], 1, $args['year']);
@@ -54,7 +58,9 @@ class Archive
 
         /* @var \App\models\Photo $photo */
         $photo = $this->model->load('Photo');
-        $output['datas'] = $photo->filter($filter)->fetchAll();
+        $output['datas'] = $photo->filter($filter)
+            ->orderBy('id', 'desc')
+            ->fetchAll();
 
         return $this->renderer->render($response, 'archives.html', $output);
     }
