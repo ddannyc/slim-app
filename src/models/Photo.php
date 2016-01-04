@@ -87,7 +87,7 @@ class Photo extends Model
         }
         if ($width * $height <= $resize_width * $resize_height) {
             // Do not resize when the source file smaller than the new size
-            return false;
+            return true;
         }
         if ($height > $resize_height) {
             $resize_width = ceil(($resize_height / $height) * $width);
