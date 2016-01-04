@@ -63,12 +63,25 @@ $container['cookie'] = function ($c) {
     return $cookie;
 };
 
+// session
+$container['session'] = function ($c) {
+    session_start();
+    return new \App\lib\Session();
+};
+
+// flash
+$container['flash'] = function ($c) {
+    return new \App\lib\Flash($c['session']);
+};
+
 // user
 $container['user'] = function ($c) {
 
-    $user = ['id' => 0, 'name' => 'guest'];
-    if (isset($_SESSION['user'])) {
-        $user = $_SESSION['user'];
+    $session = $c['session'];
+    if (isset($session['user'])) {
+        $user = $session['user'];
+    } else {
+        $user = ['id' => 0, 'name' => 'guest'];
     }
     return $user;
 };

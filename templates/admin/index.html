@@ -6,6 +6,9 @@
     <div class="ym-wbox">
         <div class="ym-grid">
             <div class="ym-gbox">
+                {% if flash %}
+                <p class="box error">{{flash}}</p>
+                {% endif %}
                 {% if user.id == 0 %}
                 <p class="box info">Hi <strong>{{ user.name }}</strong>, you can login to create your own albums.<br>
                     If you don't have a account, it would be very easy to create one, <a class="ym-button ym-small"

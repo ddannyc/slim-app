@@ -35,7 +35,9 @@ class Auth
     public function login($request, $response)
     {
         if (!$request->isPost()) {
-            return $this->renderer->render($response, 'admin/login.html');
+
+            $flash = $this->container['flash']->get('login');
+            return $this->renderer->render($response, 'admin/login.html', ['flash' => $flash]);
         } else {
 
             $post = $request->getParsedBody();
@@ -47,19 +49,20 @@ class Auth
 
                 $checkPasswd = md5($user['salt'] . $post['password']);
                 if ($checkPasswd == $user['password']) {
-                    $_SESSION['user'] = ['id' => $user['id'], 'name' => $user['name']];
+                    $this->container['session']['user'] = ['id' => $user['id'], 'name' => $user['name']];
                     return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
                 }
             }
 
-            return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('login'));
+            $this->container['flash']->set('login', 'Invalid username or password input.');
+            return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
         }
     }
 
     public function logout($request, $response)
     {
-        unset($_SESSION['user']);
-        return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('login'));
+        unset($this->container['session']['user']);
+        return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
     }
 
     public function registry($request, $response)

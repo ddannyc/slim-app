@@ -46,6 +46,7 @@ class Admin
             ->fetchAll();
 
         $output['user'] = $this->user;
+        $output['flash'] = $this->flash->get('login');
         return $this->renderer->render($response, 'admin/index.html', $output);
     }
 
