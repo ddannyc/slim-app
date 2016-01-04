@@ -51,18 +51,27 @@ class Photo extends Model
         $data['file']->moveTo($pathMoveTo);
 
         // Resize photo
-        $this->copyResize($pathMoveTo, $pathMoveTo, self::MAX_WIDTH, self::MAX_HEIGHT);
-        // Create thumbnail
-        $thumbMoveTo = $pathStatic . $pathForDb . $filename . "_thumbnail.$extName";
-        $this->copyResize($pathMoveTo, $thumbMoveTo, self::MIN_WIDTH, self::MIN_HEIGHT);
+        $imgSave = $this->copyResize($pathMoveTo, $pathMoveTo, self::MAX_WIDTH, self::MAX_HEIGHT);
 
-        $dataSave = [
-            'user_id' => $data['user_id'],
-            'photo' => $pathForDb. $filename. ".$extName",
-            'thumbnail' => $pathForDb. $filename. "_thumbnail.$extName",
-            'description' => $data['description']
-        ];
-        return $this->insert($dataSave);
+        if ($imgSave) {
+            // Create thumbnail
+            $thumbMoveTo = $pathStatic . $pathForDb . $filename . "_thumbnail.$extName";
+            $imgSave = $this->copyResize($pathMoveTo, $thumbMoveTo, self::MIN_WIDTH, self::MIN_HEIGHT);
+        } else {
+            // unlink invalid file
+            unlink($pathMoveTo);
+        }
+
+        if ($imgSave) {
+            $dataSave = [
+                'user_id' => $data['user_id'],
+                'photo' => $pathForDb . $filename . ".$extName",
+                'thumbnail' => $pathForDb . $filename . "_thumbnail.$extName",
+                'description' => $data['description']
+            ];
+            return $this->insert($dataSave);
+        }
+        return false;
     }
 
     private function copyResize($src, $dst, $resize_width, $resize_height)
@@ -71,7 +80,11 @@ class Photo extends Model
             return false;
         }
 
-        list($width, $height) = getimagesize($src);
+        list($width, $height, $imageType) = getimagesize($src);
+        if (!in_array($imageType, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG])) {
+            $this->container->logger->info('Invalid file was uploaded.');
+            return false;
+        }
         if ($width * $height <= $resize_width * $resize_height) {
             // Do not resize when the source file smaller than the new size
             return false;
@@ -85,12 +98,23 @@ class Photo extends Model
 
         try {
 
-            $image = imagecreatefromjpeg($src);
+            switch ($imageType) {
+                case IMAGETYPE_GIF:
+                    $image = imagecreatefromgif($src);
+                    break;
+                case IMAGETYPE_JPEG:
+                    $image = imagecreatefromjpeg($src);
+                    break;
+                case IMAGETYPE_PNG:
+                    $image = imagecreatefrompng($src);
+                    break;
+                default:
+                    return false;
+            }
+
             $imResize = imagecreatetruecolor($resize_width, $resize_height);
             imagecopyresampled($imResize, $image, 0, 0, 0, 0, $resize_width, $resize_height, $width, $height);
-
             imagejpeg($imResize, $dst);
-
             imagedestroy($image);
             imagedestroy($imResize);
         } catch (\Exception $e) {
