@@ -74,8 +74,8 @@ class Auth
 
             $post = $request->getParsedBody();
             if (!($post['username'] && $post['password'])) {
-                $this->flash->addError('admin_index', 'Username and password are required.');
-                $response = $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
+                $this->flash->addError('registry', 'Username and password are required.');
+                $response = $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('registry'));
                 return $response;
             }
 
