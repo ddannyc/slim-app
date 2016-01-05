@@ -10,6 +10,7 @@ namespace App\models;
 
 use App\lib\Model;
 use App\thirdparty\SomeFun;
+use Psr\Http\Message\UploadedFileInterface;
 
 class Photo extends Model
 {
@@ -33,6 +34,9 @@ class Photo extends Model
 
     public function save(array $data)
     {
+        if (!(isset($data['file']) && $data['file'] instanceof UploadedFileInterface)) {
+            return false;
+        }
         $pathStatic = $this->container->settings['path_static'];
         list($year, $month) = explode('-', date('Y-m'));
 

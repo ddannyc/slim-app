@@ -7,7 +7,13 @@
 
 namespace App\lib;
 
-
+class FlashType
+{
+    const SUCCESS = 'success';
+    const INFO = 'info';
+    const WARNING = 'warning';
+    const ERROR = 'error';
+}
 class Flash
 {
     const KEY = 'flash';
@@ -20,22 +26,56 @@ class Flash
         $this->values = isset($this->session[self::KEY]) ? $this->session[self::KEY] : [];
     }
 
-    public function get($key)
+    public function addSuccess($key, $value)
+    {
+        $this->set(FlashType::SUCCESS, $key, $value);
+    }
+
+    public function addInfo($key, $value)
+    {
+        $this->set(FlashType::INFO, $key, $value);
+    }
+
+    public function addWarning($key, $value)
+    {
+        $this->set(FlashType::WARNING, $key, $value);
+    }
+
+    public function addError($key, $value)
+    {
+        $this->set(FlashType::ERROR, $key, $value);
+    }
+
+    public function show($key)
     {
         if (isset($this->values[$key])) {
             $result = $this->values[$key];
             unset($this->values[$key]);
             $this->session[self::KEY] = $this->values;
         } else {
-            $result = '';
+            $result = [];
+        }
+        return $this->toHtml($result);
+    }
+
+    private function toHtml(array $datas)
+    {
+        $result = '';
+        foreach ($datas as $type => $contents) {
+
+            if ($contents && is_array($contents)) {
+                foreach ($contents as $msg) {
+                    $result = $result . '<p class="box ' . $type . '">' . $msg . '</p>' . "\n";
+                }
+            }
         }
         return $result;
     }
 
-    public function set($key, $value)
+    private function set($type, $key, $value)
     {
         if ($key) {
-            $this->values[$key] = $value;
+            $this->values[$key][$type][] = $value;
             $this->session[self::KEY] = $this->values;
         }
     }

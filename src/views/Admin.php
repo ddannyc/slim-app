@@ -46,7 +46,7 @@ class Admin
             ->fetchAll();
 
         $output['user'] = $this->user;
-        $output['flash'] = $this->flash->get('admin_index');
+        $output['flash'] = $this->flash->show('admin_index');
         return $this->renderer->render($response, 'admin/index.html', $output);
     }
 
@@ -86,7 +86,11 @@ class Admin
                     'user_id' => $this->user['id'],
                     'created' => date('Y-m-d H:i:s'),
                 ];
-                $photo->save($input);
+                if ($photo->save($input)) {
+                    $this->flash->addSuccess('admin_index', 'Photo uploaded success.');
+                } else {
+                    $this->flash->addError('admin_index', 'Photo uploaded falil.');
+                }
             } else {
 
                 $parsePost = $request->getParsedBody();
@@ -94,7 +98,12 @@ class Admin
                     'description' => $parsePost['description'],
                     'edited' => date('Y-m-d H:i:s'),
                 ];
-                $photo->updateById($parsePost['id'], $this->user['id'], $input);
+                $updateStatus = $photo->updateById($parsePost['id'], $this->user['id'], $input);
+                if ($updateStatus) {
+                    $this->flash->addSuccess('admin_index', 'Edited success.');
+                } else {
+                    $this->flash->addError('admin_index', 'Edited falil.');
+                }
             }
             return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
         }

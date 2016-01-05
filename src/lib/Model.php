@@ -98,6 +98,11 @@ abstract class Model
         return $result;
     }
 
+    public function lastInsertId()
+    {
+        return $this->db->lastInsertId();
+    }
+
     private function initialize()
     {
         $this->selectFields = [];

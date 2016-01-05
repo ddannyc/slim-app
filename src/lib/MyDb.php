@@ -116,6 +116,11 @@ class MyDb
         return $this->db->lastInsertId();
     }
 
+    public function lastInsertId()
+    {
+        return $this->db->lastInsertId();
+    }
+
     public function lastRowCount()
     {
         return $this->sth->rowCount();

@@ -18,7 +18,7 @@
                     {% endfor %}
 
                     <div class="ym-fbox">
-                        <label for="photo">图片</label>
+                        <label for="photo">Photo</label>
                         <input type="file" id="photo" name="photo">
                     </div>
 
@@ -29,17 +29,17 @@
                     {% endfor %}
 
                     <div class="ym-fbox">
-                        <label for="description">描述</label>
+                        <label for="description">Description</label>
                         <textarea name="description" id="description">{{ description }}</textarea>
                     </div>
                     <div class="ym-fbox">
                         <label></label>
-                        <button type="submit" class="ym-button ym-save">提交</button>
+                        <button type="submit" class="ym-button ym-save">Submit</button>
                     </div>
 
 
                 </form>
-                <p><a class="ym-button ym-small" href="{{ path_for('admin_index') }}">返回</a></p>
+                <p><a class="ym-button ym-small" href="{{ path_for('admin_index') }}">Go Back</a></p>
             </div>
         </div>
     </div>

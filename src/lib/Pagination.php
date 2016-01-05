@@ -11,28 +11,22 @@ namespace App\lib;
 class Pagination
 {
     private $perNums;
-    private $totalPage;
-    private $currentPage;
     private $pageDisplayNums;
 
     public function __construct($perNums, $pageDisplayNums)
     {
         $this->perNums = $perNums;
         $this->pageDisplayNums = $pageDisplayNums;
-        $this->totalPage = 0;
-        $this->currentPage = 1;
     }
 
-    public function setPerPage($perPage)
+    public function setPerPage($perNums)
     {
-        $this->perNums = $perPage;
+        $this->perNums = $perNums;
     }
 
     public function show($totalNums, $currentPage)
     {
-        $this->currentPage = $currentPage > 0 ? $currentPage: 1;
-        $this->totalPage = ceil(floatval($totalNums / $this->perNums));
-
+        $currentPage = $currentPage > 0 ? $currentPage : 1;
         $result = [];
         $halfRangeSize = floor($this->pageDisplayNums / 2);
         $rangeStart = $currentPage - $halfRangeSize;
@@ -48,8 +42,9 @@ class Pagination
             $rangeStart = 1;
         }
 
+        $totalPage = ceil(floatval($totalNums / $this->perNums));
         for ($i = $rangeStart;
-             $i <= $rangeEnd && $i <= $this->totalPage;
+             $i <= $rangeEnd && $i <= $totalPage;
              $i++) {
 
             $result[] = $i;
@@ -61,8 +56,8 @@ class Pagination
         }
 
         // latest
-        if ($rangeEnd + 1 <= $this->totalPage) {
-            $result[] = $this->totalPage;
+        if ($rangeEnd + 1 <= $totalPage) {
+            $result[] = $totalPage;
         }
 
         return array_unique($result);
