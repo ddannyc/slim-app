@@ -37,7 +37,9 @@ class Photo extends Model
         if (!(isset($data['file']) && $data['file'] instanceof UploadedFileInterface)) {
             return false;
         }
-        $pathStatic = $this->container->settings['path_static'];
+        /* @var \Slim\Http\UploadedFile $uploadFile */
+        $uploadFile = $data['file'];
+        $pathStatic = $this->settings['path_static'];
         list($year, $month) = explode('-', date('Y-m'));
 
         $pathForDb = 'data/'. $year. '/'. $month. '/';
@@ -46,13 +48,20 @@ class Photo extends Model
         }
 
         // Create archive
-        $archive = $this->container->model->load('Archive');
+        /* @var \App\models\Archive $archive */
+        $archive = $this->model->load('Archive');
         $archive->create(self::ARCHIVE_CLASSES, $year, $month, $data['user_id']);
 
-        $extName = pathinfo($data['file']->getClientFilename(), PATHINFO_EXTENSION);
+        $extName = pathinfo($uploadFile->getClientFilename(), PATHINFO_EXTENSION);
         $filename = SomeFun::guidv4();
         $pathMoveTo = $pathStatic . $pathForDb . $filename . ".$extName";
-        $data['file']->moveTo($pathMoveTo);
+
+        try {
+            $uploadFile->moveTo($pathMoveTo);
+        } catch (\Exception $e) {
+            $this->logger->info($e->getMessage());
+            return false;
+        }
 
         // Resize photo
         $imgSave = $this->copyResize($pathMoveTo, $pathMoveTo, self::MAX_WIDTH, self::MAX_HEIGHT);
@@ -86,7 +95,8 @@ class Photo extends Model
 
         list($width, $height, $imageType) = getimagesize($src);
         if (!in_array($imageType, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG])) {
-            $this->container->logger->info('Invalid file was uploaded.');
+            $this->logger->info('Invalid file was uploaded.');
+            $this->flash->addError('admin_index', 'Invalid file was uploaded.');
             return false;
         }
         if ($width * $height <= $resize_width * $resize_height) {
@@ -122,7 +132,8 @@ class Photo extends Model
             imagedestroy($image);
             imagedestroy($imResize);
         } catch (\Exception $e) {
-            $this->container->logger->info($e->getMessage());
+            $this->logger->info($e->getMessage());
+            return false;
         }
 
         return true;

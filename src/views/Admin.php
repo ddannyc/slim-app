@@ -34,9 +34,7 @@ class Admin
         $queryParams = $request->getQueryParams();
         $currentPage = isset($queryParams['p']) ? $queryParams['p'] : 1;
         $pagination = $this->pagination->show($totalNums, $currentPage);
-        foreach ($pagination as $val) {
-            $output['paginator']['items'][] = $val;
-        }
+        $output['paginator']['items'] = array_values($pagination);
         $output['paginator']['current'] = $currentPage;
 
         $perNums = $this->settings['pagination']['per_nums'];

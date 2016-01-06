@@ -34,6 +34,11 @@ abstract class Model
         $this->initialize();
     }
 
+    public function __get($key)
+    {
+        return $this->container->get($key);
+    }
+
     public function select($fields)
     {
         $this->selectFields = $fields;
