@@ -10,11 +10,18 @@ namespace App\lib;
 
 class Session implements \ArrayAccess
 {
+    private $id;
     private $datas;
 
     public function __construct()
     {
-        $this->datas = $_SESSION;
+        $this->id = session_id();
+        $this->datas = &$_SESSION;
+    }
+
+    public function id()
+    {
+        return $this->id;
     }
 
     public function get($offset)
@@ -50,13 +57,11 @@ class Session implements \ArrayAccess
     {
         if ($offset) {
             $this->datas[$offset] = $value;
-            $_SESSION[$offset] = $value;
         }
     }
 
     public function offsetUnset($offset)
     {
-        unset($_SESSION[$offset]);
         unset($this->datas[$offset]);
     }
 }

@@ -77,11 +77,10 @@ $container['flash'] = function ($c) {
 // user
 $container['user'] = function ($c) {
 
+    $user = ['id' => 0, 'name' => 'guest'];
     $session = $c['session'];
     if (isset($session['user'])) {
         $user = $session['user'];
-    } else {
-        $user = ['id' => 0, 'name' => 'guest'];
     }
     return $user;
 };

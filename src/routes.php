@@ -1,24 +1,6 @@
 <?php
 // Routes
-$app->get('/test', 'App\\views\\Test')->setName('test')
-    ->add(function ($req, $res, $next) {
-        $res->getBody()->write('<p>middlewareA</p>');
-        $res = $next($req, $res);
-        $res->getBody()->write('<p>middlewareA</p>');
-        return $res;
-    })
-    ->add(function ($req, $res, $next) {
-        $res->getBody()->write('<p>middlewareB</p>');
-        $res = $next($req, $res);
-        $res->getBody()->write('<p>middlewareB</p>');
-        return $res;
-    })
-    ->add(function ($req, $res, $next) {
-        $res->getBody()->write('<p>middlewareC</p>');
-        $res = $next($req, $res);
-        $res->getBody()->write('<p>middlewareC</p>');
-        return $res;
-    });
+$app->get('/test', 'App\\views\\Test:index')->setName('test');
 
 $app->get('/', 'App\\views\\Home:index')->setName('home');
 $app->group('/archives', function() {

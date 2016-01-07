@@ -28,8 +28,6 @@ class Test
 
     public function index(Request $request, Response $response)
     {
-        $this->logger->info('log info');
-
         return $response;
     }
 

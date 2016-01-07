@@ -15,8 +15,8 @@ use Psr\Http\Message\UploadedFileInterface;
 class Photo extends Model
 {
     protected $table = 'photos';
-    const MAX_WIDTH = 800;
-    const MAX_HEIGHT = 600;
+    const MAX_WIDTH = 1920;
+    const MAX_HEIGHT = 1080;
     const MIN_WIDTH = 200;
     const MIN_HEIGHT = 200;
     const ARCHIVE_CLASSES = 1;
@@ -104,10 +104,10 @@ class Photo extends Model
             return true;
         }
         if ($height > $resize_height) {
-            $resize_width = ceil(($resize_height / $height) * $width);
+            $resize_width = floor(($resize_height / $height) * $width);
         }
         if ($width > $resize_width) {
-            $resize_height = ceil(($resize_width / $width) * $height);
+            $resize_height = floor(($resize_width / $width) * $height);
         }
 
         try {
