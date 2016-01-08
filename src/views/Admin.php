@@ -7,6 +7,7 @@
 
 namespace App\views;
 
+use App\models\Photo;
 use Interop\Container\ContainerInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -78,16 +79,27 @@ class Admin
 
             if ($args['action'] == 'add') {
 
-                $input = [
-                    'file' => $request->getUploadedFiles()['photo'],
-                    'description' => $request->getParsedBody()['description'],
-                    'user_id' => $this->user['id'],
-                    'created' => date('Y-m-d H:i:s'),
-                ];
-                if ($photo->save($input)) {
-                    $this->flash->addSuccess('admin_index', 'Photo uploaded success.');
+                list($year, $month) = explode('-', date('Y-m'));
+                // Create archive
+                /* @var \App\models\Archive $archive */
+                $archive = $this->model->load('Archive');
+                $archive->create(Photo::ARCHIVE_CLASSES, $year, $month, $this->user['id']);
+
+                if ($pathForDb = $photo->initialPath($year, $month)) {
+                    if ($photo->save(
+                        $this->user['id'],
+                        $request->getUploadedFiles()['photo'],
+                        $request->getParsedBody()['description'],
+                        $pathForDb
+                    )
+                    ) {
+                        $this->flash->addSuccess('admin_index', 'Photo uploaded success.');
+                    } else {
+                        $this->flash->addError('admin_index', 'Photo uploaded falil.');
+                    }
                 } else {
-                    $this->flash->addError('admin_index', 'Photo uploaded falil.');
+                    $this->logger->error('Fail to initial path.');
+                    $this->flash->addError('admin_index', 'Uploaded fail.');
                 }
             } else {
 

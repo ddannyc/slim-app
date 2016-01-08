@@ -32,26 +32,14 @@ class Photo extends Model
         return $this->update($data);
     }
 
-    public function save(array $data)
+    public function save($userId, $uploadFile, $description, $pathForDb)
     {
-        if (!(isset($data['file']) && $data['file'] instanceof UploadedFileInterface)) {
-            return false;
-        }
         /* @var \Slim\Http\UploadedFile $uploadFile */
-        $uploadFile = $data['file'];
-        $pathStatic = $this->settings['path_static'];
-        list($year, $month) = explode('-', date('Y-m'));
-
-        $pathForDb = 'data/'. $year. '/'. $month. '/';
-        if (!$this->createPath($pathStatic . $pathForDb)) {
+        if (!($uploadFile && $uploadFile instanceof UploadedFileInterface)) {
             return false;
         }
 
-        // Create archive
-        /* @var \App\models\Archive $archive */
-        $archive = $this->model->load('Archive');
-        $archive->create(self::ARCHIVE_CLASSES, $year, $month, $data['user_id']);
-
+        $pathStatic = $this->settings['path_static'];
         $extName = pathinfo($uploadFile->getClientFilename(), PATHINFO_EXTENSION);
         $filename = SomeFun::guidv4();
         $pathMoveTo = $pathStatic . $pathForDb . $filename . ".$extName";
@@ -77,14 +65,25 @@ class Photo extends Model
 
         if ($imgSave) {
             $dataSave = [
-                'user_id' => $data['user_id'],
+                'user_id' => $userId,
+                'name' => $uploadFile->getClientFilename(),
                 'photo' => $pathForDb . $filename . ".$extName",
                 'thumbnail' => $pathForDb . $filename . "_thumbnail.$extName",
-                'description' => $data['description']
+                'description' => $description,
+                'created' => date('Y-m-d H:i:s')
             ];
             return $this->insert($dataSave);
         }
         return false;
+    }
+
+    public function initialPath($year, $month)
+    {
+        $pathForDb = 'data/' . $year . '/' . $month . '/';
+        if (!$this->createPath($this->settings['path_static'] . $pathForDb)) {
+            return false;
+        }
+        return $pathForDb;
     }
 
     private function copyResize($src, $dst, $resize_width, $resize_height)
