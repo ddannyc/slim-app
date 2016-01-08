@@ -22,6 +22,8 @@ return [
         ],
         // static path
         'path_static' => __DIR__ . '/../public/static/',
+        // scan path
+        'path_scan' => __DIR__ . '/../public/static/scan/',
         // Pagination
         'pagination' => [
             'per_nums' => 5,

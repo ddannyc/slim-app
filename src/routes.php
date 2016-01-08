@@ -1,8 +1,10 @@
 <?php
+/* @var Slim\App $app */
 // Routes
 $app->get('/test', 'App\\views\\Test:index')->setName('test');
 
 $app->get('/', 'App\\views\\Home:index')->setName('home');
+$app->get('/p/{id:\d+}', 'App\\views\\Home:p')->setName('photoDetail');
 $app->group('/archives', function() {
 
     $this->get('', 'App\\views\\Archive:index')->setName('archive_list');
@@ -20,4 +22,5 @@ $app->group('/admin', function () {
 
     $this->get('', 'App\\views\\Admin:index')->setName('admin_index');
     $this->map(['GET', 'POST'], '/photo/{action}', 'App\\views\\Admin:photoAction')->setName('photo_action');
+    $this->get('/scan', 'App\\views\\Admin:scan')->setName('scan');
 });

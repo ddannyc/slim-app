@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block title %} Photo detail {% endblock %}
+{% block content %}
+<div class="ym-wrapper">
+    <div class="ym-wbox">
+        <div class="ym-grid">
+            <div class="ym-gbox">
+                <h2>Photo detail</h2>
+                {{flash|raw}}
+                <p>
+                    <img src="{{ path_static() ~ photo}}" alt="{{description}}">
+                </p>
+                <span>{{name}}</span>
+
+                <p>
+                    {{description}}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

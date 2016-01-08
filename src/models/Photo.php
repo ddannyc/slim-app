@@ -9,8 +9,7 @@ namespace App\models;
 
 
 use App\lib\Model;
-use App\thirdparty\SomeFun;
-use Psr\Http\Message\UploadedFileInterface;
+
 
 class Photo extends Model
 {
@@ -32,25 +31,13 @@ class Photo extends Model
         return $this->update($data);
     }
 
-    public function save($userId, $uploadFile, $description, $pathForDb)
+    public function save($userId, $pathInfo, $description)
     {
-        /* @var \Slim\Http\UploadedFile $uploadFile */
-        if (!($uploadFile && $uploadFile instanceof UploadedFileInterface)) {
-            return false;
-        }
-
-        $pathStatic = $this->settings['path_static'];
-        $extName = pathinfo($uploadFile->getClientFilename(), PATHINFO_EXTENSION);
-        $filename = SomeFun::guidv4();
-        $pathMoveTo = $pathStatic . $pathForDb . $filename . ".$extName";
-
-        try {
-            $uploadFile->moveTo($pathMoveTo);
-        } catch (\Exception $e) {
-            $this->logger->info($e->getMessage());
-            return false;
-        }
-
+        $pathStatic = $pathInfo['path_static'];
+        $filename = $pathInfo['filename'];
+        $extName = $pathInfo['ext'];
+        $pathForDb = $pathInfo['db'];
+        $pathMoveTo = $pathInfo['moveTo'];
         // Resize photo
         $imgSave = $this->copyResize($pathMoveTo, $pathMoveTo, self::MAX_WIDTH, self::MAX_HEIGHT);
 
@@ -66,7 +53,7 @@ class Photo extends Model
         if ($imgSave) {
             $dataSave = [
                 'user_id' => $userId,
-                'name' => $uploadFile->getClientFilename(),
+                'name' => $pathInfo['tmpName'],
                 'photo' => $pathForDb . $filename . ".$extName",
                 'thumbnail' => $pathForDb . $filename . "_thumbnail.$extName",
                 'description' => $description,
@@ -77,13 +64,37 @@ class Photo extends Model
         return false;
     }
 
-    public function initialPath($year, $month)
+    public function initialPath($userId, $year, $month)
     {
-        $pathForDb = 'data/' . $year . '/' . $month . '/';
+        $pathForDb = sprintf("data/u%s/%s/%s/", $userId, $year, $month);
         if (!$this->createPath($this->settings['path_static'] . $pathForDb)) {
             return false;
         }
         return $pathForDb;
+    }
+
+    public function scanPath($path)
+    {
+        $result = [];
+        $excludeDir = ['.', '..'];
+        if (is_dir($path)) {
+            $dh = opendir($path);
+            while ($file = readdir($dh)) {
+                if (!in_array($file, $excludeDir)) {
+
+                    $filepath = sprintf("%s/%s", rtrim($path, '/'), $file);
+                    if (!is_dir($filepath)) {
+                        $result[] = [
+                            'name' => $file,
+                            'fullName' => $filepath
+                        ];
+                    } else {
+                        $result = array_merge($result, $this->scanPath($filepath));
+                    }
+                }
+            }
+        }
+        return $result;
     }
 
     private function copyResize($src, $dst, $resize_width, $resize_height)
@@ -100,6 +111,9 @@ class Photo extends Model
         }
         if ($width * $height <= $resize_width * $resize_height) {
             // Do not resize when the source file smaller than the new size
+            if (!is_file($dst)) {
+                copy($src, $dst);
+            }
             return true;
         }
         if ($height > $resize_height) {

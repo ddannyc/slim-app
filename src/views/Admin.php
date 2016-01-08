@@ -8,6 +8,7 @@
 namespace App\views;
 
 use App\models\Photo;
+use App\thirdparty\SomeFun;
 use Interop\Container\ContainerInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -49,6 +50,51 @@ class Admin
         return $this->renderer->render($response, 'admin/index.html', $output);
     }
 
+    public function scan(Request $request, Response $response)
+    {
+        list($year, $month) = explode('-', date('Y-m'));
+        // Create archive
+        /* @var \App\models\Archive $archive */
+        $archive = $this->model->load('Archive');
+        $archive->create(Photo::ARCHIVE_CLASSES, $year, $month, $this->user['id']);
+
+        /* @var \App\models\Photo $photo */
+        $photo = $this->model->load('Photo');
+        $pathForDb = $photo->initialPath($this->user['id'], $year, $month);
+        if (!$pathForDb) {
+            $this->flash->addError('admin_index', 'Initial upload path failed.');
+            return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('admin_index'));
+        }
+        $pathStatic = $this->settings['path_static'];
+        foreach ($photo->scanPath($this->settings['path_scan']) as $file) {
+            $extName = pathinfo($file['fullName'], PATHINFO_EXTENSION);
+            $filename = SomeFun::guidv4();
+            $pathInfo = [
+                'path_static' => $pathStatic,
+                'tmpName' => $file['name'],
+                'ext' => $extName,
+                'filename' => $filename,
+                'db' => $pathForDb,
+                'moveTo' => $pathStatic . $pathForDb . $filename . ".$extName"
+            ];
+
+            try {
+                rename($file['fullName'], $pathInfo['moveTo']);
+            } catch (\Exception $e) {
+                $this->logger->info($e->getMessage());
+            }
+
+            $photo->save(
+                $this->user['id'],
+                $pathInfo,
+                $request->getParsedBody()['description']
+            );
+        }
+
+        $this->flash->addSuccess('admin_index', 'Scan completed.');
+        return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('admin_index'));
+    }
+
     public function photoAction(Request $request, Response $response, $args)
     {
         /* @var \App\models\Photo $photo */
@@ -85,12 +131,34 @@ class Admin
                 $archive = $this->model->load('Archive');
                 $archive->create(Photo::ARCHIVE_CLASSES, $year, $month, $this->user['id']);
 
-                if ($pathForDb = $photo->initialPath($year, $month)) {
+                if ($pathForDb = $photo->initialPath($this->user['id'], $year, $month)) {
+
+                    /* @var \Slim\Http\UploadedFile $uploadedFile */
+                    $uploadedFile = $request->getUploadedFiles()['photo'];
+                    $pathStatic = $this->settings['path_static'];
+                    $extName = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+                    $filename = SomeFun::guidv4();
+                    $pathInfo = [
+                        'path_static' => $pathStatic,
+                        'tmpName' => $uploadedFile->getClientFilename(),
+                        'ext' => $extName,
+                        'filename' => $filename,
+                        'db' => $pathForDb,
+                        'moveTo' => $pathStatic . $pathForDb . $filename . ".$extName"
+                    ];
+
+                    try {
+                        $uploadedFile->moveTo($pathInfo['moveTo']);
+                    } catch (\Exception $e) {
+                        $this->logger->info($e->getMessage());
+                        $this->flash->addError('admin_index', 'Uploaded fail.');
+                        return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
+                    }
+
                     if ($photo->save(
                         $this->user['id'],
-                        $request->getUploadedFiles()['photo'],
-                        $request->getParsedBody()['description'],
-                        $pathForDb
+                        $pathInfo,
+                        $request->getParsedBody()['description']
                     )
                     ) {
                         $this->flash->addSuccess('admin_index', 'Photo uploaded success.');

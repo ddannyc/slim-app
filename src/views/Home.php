@@ -35,6 +35,21 @@ class Home
             ->limit(20)
             ->fetchAll();
 
+        $output['flash'] = $this->flash->show('home');
         return $this->renderer->render($response, 'home.html', $output);
+    }
+
+    public function p(Request $request, Response $response, $args)
+    {
+        /* @var \App\models\Photo $photo */
+        $photo = $this->model->load('Photo');
+        $output = $photo
+            ->filter(['id' => $args['id'], 'user_id' => $this->user['id']])
+            ->fetch();
+        if (!$output) {
+            $this->flash->addError('home', 'Photo not exists.');
+            return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
+        }
+        return $this->renderer->render($response, 'p.html', $output);
     }
 }
