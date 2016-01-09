@@ -9,7 +9,7 @@ $app->group('/archives', function() {
 
     $this->get('', 'App\\views\\Archive:index')->setName('archive_list');
     $this->get('/{year}/{month}', 'App\\views\\Archive:detail')->setName('archives');
-});
+})->add('App\middleware\Permission');
 
 $app->group('/login', function() {
     $this->map(['GET', 'POST'], '', 'App\\views\\Auth:login')->setName('login');
@@ -21,6 +21,6 @@ $app->map(['GET', 'POST'], '/registry', 'App\\views\\Auth:registry')->setName('r
 $app->group('/admin', function () {
 
     $this->get('', 'App\\views\\Admin:index')->setName('admin_index');
-    $this->map(['GET', 'POST'], '/photo/{action}', 'App\\views\\Admin:photoAction')->setName('photo_action');
-    $this->get('/scan', 'App\\views\\Admin:scan')->setName('scan');
+    $this->map(['GET', 'POST'], '/photo/{action}', 'App\\views\\Admin:photoAction')->setName('photo_action')->add('App\middleware\Permission');
+    $this->get('/scan', 'App\\views\\Admin:scan')->setName('scan')->add('App\middleware\Permission');
 });

@@ -8,6 +8,7 @@
 namespace App\views;
 
 
+use App\models\Photo;
 use Interop\Container\ContainerInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -30,9 +31,14 @@ class Home
     {
         /* @var \App\models\Photo $photo */
         $photo = $this->model->load('Photo');
-        $output['datas'] = $photo->filter(['user_id' => $this->user['id']])
+        if ($this->user['id'] <= 0) {
+            $filter = ['is_public' => Photo::PUBLIC_YES];
+        } else {
+            $filter = ['user_id' => $this->user['id']];
+        }
+        $output['datas'] = $photo->filter($filter)
             ->orderBy('id', 'desc')
-            ->limit(20)
+            ->limit(50)
             ->fetchAll();
 
         $output['flash'] = $this->flash->show('home');

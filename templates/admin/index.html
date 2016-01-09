@@ -35,7 +35,7 @@
                     <tr>
                         <th>Photo</th>
                         <th>Description</th>
-                        <th>operation</th>
+                        {% if user.id>0 %}<th>operation</th>{% endif %}
                     </tr>
                     {% for item in datas %}
                     <tr>
@@ -45,6 +45,7 @@
                         <td>
                             {{ item.description }}
                         </td>
+                        {% if user.id > 0 %}
                         <td>
                             <a class="ym-button ym-success ym-small ym-edit"
                                href="{{path_for('photo_action', {'action':'edit'}, {'id': item.id})}}">
@@ -54,6 +55,7 @@
                             <a href="{{path_for('photo_action', {'action':'delete'}, {'id': item.id})}}" class="ym-button ym-danger
                     ym-delete ym-small">delete</a>
                         </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </table>
@@ -70,13 +72,14 @@
                     {% endfor %}
                 </p>
                 {% endif %}
-                {% else %}
-                <p>No post found.</p>
                 {% endif %}
+
+                {% if user.id > 0 %}
                 <p>
                     <a class="ym-button ym-success ym-add" href="{{ path_for('photo_action', {'action':'add'}) }}">
                         add photo</a>
                 </p>
+                {% endif %}
             </div>
         </div>
     </div>

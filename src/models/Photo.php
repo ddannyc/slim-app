@@ -19,6 +19,16 @@ class Photo extends Model
     const MIN_WIDTH = 200;
     const MIN_HEIGHT = 200;
     const ARCHIVE_CLASSES = 1;
+    const PUBLIC_YES = 1;
+    const PUBLIC_NO = 0;
+
+    public static function getIsPublicOptions()
+    {
+        return [
+            'private' => self::PUBLIC_NO,
+            'public' => self::PUBLIC_YES
+        ];
+    }
 
     public function all()
     {
@@ -31,7 +41,7 @@ class Photo extends Model
         return $this->update($data);
     }
 
-    public function save($userId, $pathInfo, $description)
+    public function save($userId, $pathInfo, $description, $isPublic)
     {
         $pathStatic = $pathInfo['path_static'];
         $filename = $pathInfo['filename'];
@@ -57,7 +67,8 @@ class Photo extends Model
                 'photo' => $pathForDb . $filename . ".$extName",
                 'thumbnail' => $pathForDb . $filename . "_thumbnail.$extName",
                 'description' => $description,
-                'created' => date('Y-m-d H:i:s')
+                'created' => date('Y-m-d H:i:s'),
+                'is_public' => $isPublic
             ];
             return $this->insert($dataSave);
         }

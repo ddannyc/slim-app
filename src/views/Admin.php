@@ -29,23 +29,24 @@ class Admin
 
     public function index(Request $request, Response $response)
     {
-        $filters = ['user_id' => $this->user['id']];
-        /* @var \App\models\Photo $photo */
-        $photo = $this->model->load('Photo');
-        $totalNums = $photo->filter($filters)->rowCount();
-        $queryParams = $request->getQueryParams();
-        $currentPage = isset($queryParams['p']) ? $queryParams['p'] : 1;
-        $pagination = $this->pagination->show($totalNums, $currentPage);
-        $output['paginator']['items'] = array_values($pagination);
-        $output['paginator']['current'] = $currentPage;
+        if ($this->user['id'] > 0) {
+            $filters = ['user_id' => $this->user['id']];
+            /* @var \App\models\Photo $photo */
+            $photo = $this->model->load('Photo');
+            $totalNums = $photo->filter($filters)->rowCount();
+            $queryParams = $request->getQueryParams();
+            $currentPage = isset($queryParams['p']) ? $queryParams['p'] : 1;
+            $pagination = $this->pagination->show($totalNums, $currentPage);
+            $output['paginator']['items'] = array_values($pagination);
+            $output['paginator']['current'] = $currentPage;
 
-        $perNums = $this->settings['pagination']['per_nums'];
-        $output['datas'] = $photo->filter(['user_id' => $this->user['id']])
-            ->orderBy('id', 'desc')
-            ->limit($perNums, ($currentPage - 1) * $perNums)
-            ->fetchAll();
+            $perNums = $this->settings['pagination']['per_nums'];
+            $output['datas'] = $photo->filter(['user_id' => $this->user['id']])
+                ->orderBy('id', 'desc')
+                ->limit($perNums, ($currentPage - 1) * $perNums)
+                ->fetchAll();
+        }
 
-        $output['user'] = $this->user;
         $output['flash'] = $this->flash->show('admin_index');
         return $this->renderer->render($response, 'admin/index.html', $output);
     }
@@ -87,7 +88,8 @@ class Admin
             $photo->save(
                 $this->user['id'],
                 $pathInfo,
-                $request->getParsedBody()['description']
+                '',
+                Photo::PUBLIC_NO
             );
         }
 
@@ -99,10 +101,12 @@ class Admin
     {
         /* @var \App\models\Photo $photo */
         $photo = $this->model->load('Photo');
+        $isPublicOptions = $photo->getIsPublicOptions();
         if (!$request->isPost()) {
 
             if ($args['action'] == 'add') {
                 $output['action'] = $args['action'];
+                $output['isPublicOptions'] = $isPublicOptions;
                 return $this->renderer->render($response, 'admin/edit_photo.html', $output);
             } else {
 
@@ -112,6 +116,7 @@ class Admin
                     $output = $photo->filter(['id' => $queryParams['id'], 'user_id' => $this->user['id']])->fetch();
                     if ($output) {
                         $output['action'] = $args['action'];
+                        $output['isPublicOptions'] = $isPublicOptions;
                         return $this->renderer->render($response, 'admin/edit_photo.html', $output);
                     } else {
                         return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
@@ -158,7 +163,8 @@ class Admin
                     if ($photo->save(
                         $this->user['id'],
                         $pathInfo,
-                        $request->getParsedBody()['description']
+                        $request->getParsedBody()['description'],
+                        $request->getParsedBody()['is_public']
                     )
                     ) {
                         $this->flash->addSuccess('admin_index', 'Photo uploaded success.');
@@ -175,6 +181,7 @@ class Admin
                 $input = [
                     'description' => $parsePost['description'],
                     'edited' => date('Y-m-d H:i:s'),
+                    'is_public' => $parsePost['is_public']
                 ];
                 $updateStatus = $photo->updateById($parsePost['id'], $this->user['id'], $input);
                 if ($updateStatus) {

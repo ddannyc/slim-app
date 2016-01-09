@@ -12,22 +12,19 @@
                     {% if action =='edit' %}
                     <input type="hidden" name="id" value="{{ id }}">
                     {% else %}
-
-                    {% for error in form.photo.errors %}
-                    <div class="box error">{{error}}</div>
-                    {% endfor %}
-
                     <div class="ym-fbox">
                         <label for="photo">Photo</label>
                         <input type="file" id="photo" name="photo">
                     </div>
-
                     {% endif %}
-
-                    {% for error in form.description.errors %}
-                    <div class="box error">{{error}}</div>
-                    {% endfor %}
-
+                    <div class="ym-fbox">
+                        <label for="is_public">Public or private</label>
+                        <select name="is_public" id="is_public">
+                            {% for txt,opt in isPublicOptions %}
+                            <option value="{{opt}}"{% if opt == is_public %} selected{% endif %}>{{txt}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <div class="ym-fbox">
                         <label for="description">Description</label>
                         <textarea name="description" id="description">{{ description }}</textarea>

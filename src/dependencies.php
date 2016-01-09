@@ -14,6 +14,7 @@ $container['renderer'] = function ($c) {
         $uri
     ));
     $view->addExtension(new Twig_Extension_Debug());
+    $view->offsetSet('user', $c['user']);
     $view->offsetSet('staticPath', $uri->getBaseUrl() . '/static/');
 
     return $view;

@@ -34,6 +34,7 @@ class Permission
     {
         $user = $this->container->get('user');
         if ($user['id'] === 0) {
+            $this->container->flash->addError('admin_index', 'Please login first.');
             return $response->withStatus(302)->withHeader('Location ', $this->container->get('router')->pathFor('admin_index'));
         }
 
