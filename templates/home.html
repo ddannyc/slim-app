@@ -12,12 +12,12 @@
                     {{flash|raw}}
                     <div id="aniimated-thumbnials">
                         {% for item in datas %}
-                        <a 
-                        href="{{ path_static() ~ item.photo }}"
+                        <a
+                                href="{{ staticPath ~ item.photo }}"
                         data-sub-html="{{ item.description }}"
                         >
                             <img src="{{
-                            path_static() ~
+                            staticPath ~
                             item.thumbnail }}">
                         </a>
                         {% endfor %}

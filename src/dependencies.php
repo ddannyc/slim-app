@@ -8,11 +8,13 @@ $container['renderer'] = function ($c) {
         'cache' => $settings['cache_path'],
         'debug' => true,
     ]);
+    $uri = $c['request']->getUri();
     $view->addExtension(new \Slim\Views\TwigExtension(
         $c['router'],
-        $c['request']->getUri()
+        $uri
     ));
     $view->addExtension(new Twig_Extension_Debug());
+    $view->offsetSet('staticPath', $uri->getBaseUrl() . '/static/');
 
     return $view;
 };
