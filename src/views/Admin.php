@@ -107,6 +107,7 @@ class Admin
             if ($args['action'] == 'add') {
                 $output['action'] = $args['action'];
                 $output['isPublicOptions'] = $isPublicOptions;
+                $output['is_public'] = Photo::PUBLIC_YES;
                 return $this->renderer->render($response, 'admin/edit_photo.html', $output);
             } else {
 
