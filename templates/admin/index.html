@@ -40,7 +40,8 @@
                     {% for item in datas %}
                     <tr>
                         <td>
-                            <img src="{{ staticPath ~ item.thumbnail }}" class="flexible">
+                            <a href="{{ path_for('photoDetail', {'id': item.id}) }}"><img
+                                    src="{{ staticPath ~ item.thumbnail }}"></a>
                         </td>
                         <td>
                             {{ item.description }}

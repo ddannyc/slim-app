@@ -153,7 +153,7 @@ class MyDb
             } else {
                 $arr_val = explode(' ', $val);
 
-                if(in_array($arr_val[1], array('>', '>=', '<', '<='))) {
+                if (in_array($arr_val[1], array('>', '>=', '<', '<=', 'like'))) {
                     $conditions_key[$key] = $val. '?';
                 } else {
                     $conditions_key[$key] = '-1=?';
