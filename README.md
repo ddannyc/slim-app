@@ -8,6 +8,7 @@ cache/
 logs/
 public/
     static/          - static contents
+        scan/        - photos in here can be auto insert
     index.php
 src/
     lib/
