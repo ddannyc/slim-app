@@ -92,8 +92,11 @@ abstract class Model
 
     public function update(array $data)
     {
-        $result = $this->db->update($this->table, $data, $this->filter);
-        $this->initialize();
+        $result = false;
+        if ($this->filter) {
+            $result = $this->db->update($this->table, $data, $this->filter);
+            $this->initialize();
+        }
         return $result;
     }
 

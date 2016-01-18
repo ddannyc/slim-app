@@ -9,6 +9,7 @@ namespace App\models;
 
 
 use App\lib\Model;
+use App\thirdparty\SomeFun;
 
 
 class Photo extends Model
@@ -41,7 +42,7 @@ class Photo extends Model
         return $this->update($data);
     }
 
-    public function save($userId, $pathInfo, $description, $isPublic)
+    public function save($userId, $pathInfo, $description, $isPublic, $albumId)
     {
         $pathStatic = $pathInfo['path_static'];
         $filename = $pathInfo['filename'];
@@ -68,7 +69,8 @@ class Photo extends Model
                 'thumbnail' => $pathForDb . $filename . "_thumbnail.$extName",
                 'description' => $description,
                 'created' => date('Y-m-d H:i:s'),
-                'is_public' => $isPublic
+                'is_public' => $isPublic,
+                'album_id' => $albumId
             ];
             return $this->insert($dataSave);
         }
@@ -82,6 +84,41 @@ class Photo extends Model
             return false;
         }
         return $pathForDb;
+    }
+
+    public function processScan($pathForDb, $albumId, array $datas)
+    {
+        $coverPhoto = 0;
+        $pathStatic = $this->settings['path_static'];
+        foreach ($datas as $file) {
+            if ((isset($file['name']) && isset($file['fullName']))) {
+                $extName = pathinfo($file['fullName'], PATHINFO_EXTENSION);
+                $filename = SomeFun::guidv4();
+                $pathInfo = [
+                    'path_static' => $pathStatic,
+                    'tmpName' => $file['name'],
+                    'ext' => $extName,
+                    'filename' => $filename,
+                    'db' => $pathForDb,
+                    'moveTo' => $pathStatic . $pathForDb . $filename . ".$extName"
+                ];
+
+                try {
+                    rename($file['fullName'], $pathInfo['moveTo']);
+                } catch (\Exception $e) {
+                    $this->logger->info($e->getMessage());
+                }
+
+                $coverPhoto = $this->save(
+                    $this->user['id'],
+                    $pathInfo,
+                    '',
+                    Photo::PUBLIC_YES,
+                    $albumId
+                );
+            }
+        }
+        return $coverPhoto;
     }
 
     public function scanPath($path)
@@ -100,7 +137,10 @@ class Photo extends Model
                             'fullName' => $filepath
                         ];
                     } else {
-                        $result = array_merge($result, $this->scanPath($filepath));
+                        $subResult = $this->scanPath($filepath);
+                        if ($subResult) {
+                            $result[$file] = $subResult;
+                        }
                     }
                 }
             }

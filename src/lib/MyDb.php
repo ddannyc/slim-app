@@ -65,7 +65,6 @@ class MyDb
     {
         $strFields = $this->selectField($fields);
         $strWhere = $this->filter($conditions);
-
         $strOrder = $this->getOrderBy($orderBy);
         $strLimit = $this->getLimit($limit);
         $sql = "SELECT $strFields FROM " . $table . $strWhere . $strOrder . $strLimit;
@@ -139,28 +138,40 @@ class MyDb
         return $result;
     }
 
-    private function filter($conditions)
+    private function filter(&$conditions)
     {
         if (!$conditions) {
             return '';
         }
+        $arrWhere = [];
         $conditions_key = array_keys($conditions);
-        foreach($conditions_key as $key=>$val) {
+        foreach ($conditions_key as $val) {
 
             $val = trim($val);
             if(strpos($val, ' ') === false) {
-                $conditions_key[$key] = $val. '=?';
+                $arrWhere[] = $val . '=?';
             } else {
                 $arr_val = explode(' ', $val);
 
                 if (in_array($arr_val[1], array('>', '>=', '<', '<=', 'like'))) {
-                    $conditions_key[$key] = $val. '?';
+                    $arrWhere[] = $val . '?';
+                } elseif (strtoupper($arr_val[1]) == 'IN') {
+                    if ($conditions[$val]) {
+                        $inValues = implode("','", array_map('htmlspecialchars', $conditions[$val]));
+                        $arrWhere[] = $arr_val[0] . " IN('$inValues')";
+                    }
+                    unset($conditions[$val]);
                 } else {
-                    $conditions_key[$key] = '-1=?';
+                    $arrWhere[] = '-1=?';
                 }
             }
         }
-        $strWhere = ' WHERE '. implode(' AND ', $conditions_key);
+
+        if ($arrWhere) {
+            $strWhere = ' WHERE ' . implode(' AND ', $arrWhere);
+        } else {
+            $strWhere = '';
+        }
         return $strWhere;
     }
 

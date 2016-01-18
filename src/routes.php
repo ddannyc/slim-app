@@ -4,6 +4,7 @@
 $app->get('/test', 'App\\views\\Test:index')->setName('test');
 
 $app->get('/', 'App\\views\\Home:index')->setName('home');
+$app->get('/a/{id:\d+}', 'App\\views\\Home:albumDetail')->setName('albumDetail');
 $app->get('/p/{id:\d+}', 'App\\views\\Home:p')->setName('photoDetail');
 $app->group('/archives', function() {
 

@@ -29,18 +29,9 @@ class Home
 
     public function index(Request $request, Response $response)
     {
-        /* @var \App\models\Photo $photo */
-        $photo = $this->model->load('Photo');
-        if ($this->user['id'] <= 0) {
-            $filter = ['is_public' => Photo::PUBLIC_YES];
-        } else {
-            $filter = ['user_id' => $this->user['id']];
-        }
-        $output['datas'] = $photo->filter($filter)
-            ->orderBy('id', 'desc')
-            ->limit(50)
-            ->fetchAll();
-
+        /* @var \App\models\Album $album */
+        $album = $this->model->load('Album');
+        $output['datas'] = $album->all();
         $output['flash'] = $this->flash->show('home');
         return $this->renderer->render($response, 'home.html', $output);
     }
@@ -57,5 +48,22 @@ class Home
             return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('home'));
         }
         return $this->renderer->render($response, 'p.html', $output);
+    }
+
+    public function albumDetail(Request $request, Response $response, $args)
+    {
+        /* @var \App\models\Album $album */
+        $album = $this->model->load('Album');
+        $output = $album
+            ->filter(['id' => $args['id']])
+            ->fetch();
+
+        /* @var \App\models\Photo $photo */
+        $photo = $this->model->load('Photo');
+        $output['datas'] = $photo
+            ->filter(['album_id' => intval($args['id'])])
+            ->fetchAll();
+
+        return $this->renderer->render($response, 'albumDetail.html', $output);
     }
 }

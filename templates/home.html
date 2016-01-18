@@ -8,20 +8,15 @@
             <div class="ym-grid">
 
                 <div class="ym-gbox">
-                    <h2>Recent posts</h2>
+                    <h2>Welcom here</h2>
                     {{flash|raw}}
-                    <div id="aniimated-thumbnials">
-                        {% for item in datas %}
-                        <a
-                                href="{{ staticPath ~ item.photo }}"
-                        data-sub-html="{{ item.description }}"
-                        >
-                            <img src="{{
-                            staticPath ~
-                            item.thumbnail }}">
+                    {% for item in datas %}
+                    <p class="">
+                        <a href="{{ path_for('albumDetail', {'id': item.id}) }}">
+                            <img src="{{ staticPath ~ item.cover}}" class="bordered">
                         </a>
-                        {% endfor %}
-                    </div>
+                    </p>
+                    {% endfor %}
                 </div>
             </div>
         </div>

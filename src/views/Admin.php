@@ -53,7 +53,8 @@ class Admin
 
     public function scan(Request $request, Response $response)
     {
-        list($year, $month) = explode('-', date('Y-m'));
+        $dateToday = date('Y-m-d');
+        list($year, $month,) = explode('-', $dateToday);
         // Create archive
         /* @var \App\models\Archive $archive */
         $archive = $this->model->load('Archive');
@@ -66,31 +67,27 @@ class Admin
             $this->flash->addError('admin_index', 'Initial upload path failed.');
             return $response->withStatus(302)->withHeader('Location', $this->router->pathFor('admin_index'));
         }
-        $pathStatic = $this->settings['path_static'];
-        foreach ($photo->scanPath($this->settings['path_scan']) as $file) {
-            $extName = pathinfo($file['fullName'], PATHINFO_EXTENSION);
-            $filename = SomeFun::guidv4();
-            $pathInfo = [
-                'path_static' => $pathStatic,
-                'tmpName' => $file['name'],
-                'ext' => $extName,
-                'filename' => $filename,
-                'db' => $pathForDb,
-                'moveTo' => $pathStatic . $pathForDb . $filename . ".$extName"
-            ];
 
-            try {
-                rename($file['fullName'], $pathInfo['moveTo']);
-            } catch (\Exception $e) {
-                $this->logger->info($e->getMessage());
+        // Create album
+        /* @var \App\models\Album $album */
+        $album = $this->model->load('Album');
+
+        foreach ($photo->scanPath($this->settings['path_scan']) as $dirName => $data) {
+            if (!is_numeric($dirName)) {
+
+                $newAlbum = [
+                    'user_id' => $this->user['id'],
+                    'name' => $dirName,
+                    'created' => date('Y-m-d H:i:s')
+                ];
+                $albumId = $album->insert($newAlbum);
+                if ($albumId > 0) {
+                    $coverId = $photo->processScan($pathForDb, $albumId, $data);
+                    if ($coverId > 0) {
+                        $album->filter(['id' => $albumId])->update(['cover' => $coverId]);
+                    }
+                }
             }
-
-            $photo->save(
-                $this->user['id'],
-                $pathInfo,
-                '',
-                Photo::PUBLIC_NO
-            );
         }
 
         $this->flash->addSuccess('admin_index', 'Scan completed.');
