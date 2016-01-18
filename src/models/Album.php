@@ -18,7 +18,12 @@ class Album extends Model
 
     public function all()
     {
-        $datas = $this->filter(['user_id' => $this->user['id']])
+        if ($this->user['id'] > 0) {
+            $filter = ['user_id' => $this->user['id']];
+        } else {
+            $filter = ['is_public' => Album::PUBLIC_YES];
+        }
+        $datas = $this->filter($filter)
             ->orderBy(['weight', 'id'], 'desc')
             ->fetchAll();
 
