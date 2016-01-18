@@ -12,6 +12,8 @@ use App\lib\Model;
 
 class Album extends Model
 {
+    const PUBLIC_YES = 1;
+    const PUBLIC_NO = 0;
     protected $table = 'albums';
 
     public function all()

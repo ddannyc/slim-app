@@ -7,6 +7,7 @@
 
 namespace App\views;
 
+use App\models\Album;
 use App\models\Photo;
 use App\thirdparty\SomeFun;
 use Interop\Container\ContainerInterface;
@@ -78,7 +79,8 @@ class Admin
                 $newAlbum = [
                     'user_id' => $this->user['id'],
                     'name' => $dirName,
-                    'created' => date('Y-m-d H:i:s')
+                    'created' => date('Y-m-d H:i:s'),
+                    'is_public' => Album::PUBLIC_YES
                 ];
                 $albumId = $album->insert($newAlbum);
                 if ($albumId > 0) {

@@ -11,6 +11,7 @@ CREATE TABLE `albums` (
 	`created` TIMESTAMP NULL DEFAULT NULL,
 	`cover` INT(11) NULL DEFAULT NULL,
 	`weight` INT NOT NULL DEFAULT '0',
+	`is_public` TINYINT NOT NULL DEFAULT '0'
 	PRIMARY KEY (`id`)
 )
 COLLATE='utf8_general_ci'
