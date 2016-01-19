@@ -9,6 +9,7 @@
             <div class="ym-gbox">
                 <form action="{{path_for('photo_action', {'action':action})}}" method="post" class="ym-form"
                       enctype="multipart/form-data">
+                    <input type="hidden" name="p" value="{{ currentPage }}">
                     {% if action =='edit' %}
                     <input type="hidden" name="id" value="{{ id }}">
                     {% else %}
@@ -28,7 +29,8 @@
                             </select>
                         </div>
                         <div class="ym-gl ym-g20">
-                            <a href="{{ path_for('album_action', {'action': 'add'}) }}" class="ym-button ym-small">Add
+                            <a href="{{ path_for('album_action', {'action': 'add'}, {'action': action, 'pid': id}) }}"
+                               class="ym-button ym-small">Add
                                 an album</a>
                         </div>
                     </div>

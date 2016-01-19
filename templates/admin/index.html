@@ -49,7 +49,7 @@
                         {% if user.id > 0 %}
                         <td>
                             <a class="ym-button ym-success ym-small ym-edit"
-                               href="{{path_for('photo_action', {'action':'edit'}, {'id': item.id})}}">
+                               href="{{path_for('photo_action', {'action':'edit'}, {'id': item.id, 'p': paginator.current})}}">
                                 edit
                             </a>
                             &nbsp;&nbsp;&nbsp;

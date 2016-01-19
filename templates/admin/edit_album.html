@@ -9,6 +9,8 @@
             <div class="ym-gbox">
                 <form action="{{path_for('album_action', {'action':action})}}" method="post" class="ym-form"
                       enctype="multipart/form-data">
+                    <input type="hidden" name="photoAction" value="{{ photoAction }}">
+                    <input type="hidden" name="photoId" value="{{ photoId }}">
                     {% if action =='edit' %}
                     <input type="hidden" name="id" value="{{ id }}">
                     {% else %}

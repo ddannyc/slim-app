@@ -158,6 +158,8 @@ class Admin
         $output['action'] = self::ACTION_ADD;
         $output['isPublicOptions'] = $album->getIsPublicOptions();
         $output['is_public'] = Album::PUBLIC_YES;
+        $output['photoAction'] = $request->getParam('action', self::ACTION_ADD);
+        $output['photoId'] = $request->getParam('pid', 0);
 
         return $this->renderer->render($response, 'admin/edit_album.html', $output);
     }
@@ -173,6 +175,7 @@ class Admin
             if ($output) {
                 $output['action'] = self::ACTION_EDIT;
                 $output['isPublicOptions'] = $photo->getIsPublicOptions();
+                $output['currentPage'] = isset($queryParams['p']) ? $queryParams['p'] : 1;
 
                 /* @var \App\models\Album $album */
                 $album = $this->model->load('Album');
@@ -198,6 +201,7 @@ class Admin
             if ($output) {
                 $output['action'] = self::ACTION_EDIT;
                 $output['isPublicOptions'] = $album->getIsPublicOptions();
+                $output['photoId'] = $request->getParam('pid', 0);
 
                 return $this->renderer->render($response, 'admin/edit_album.html', $output);
             } else {
@@ -315,7 +319,14 @@ class Admin
             $this->logger->error('Fail to initial path.');
             $this->flash->addError('admin_index', 'Uploaded fail.');
         }
-        return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
+
+        $comeFrom = ['action' => $request->getParsedBody()['photoAction'], 'photoId' => $request->getParsedBody()['photoId']];
+        if ($comeFrom['action'] && $comeFrom['photoId']) {
+            $queryParams = ['id' => $comeFrom['photoId']];
+            return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('photo_action', ['action' => $comeFrom['action']], $queryParams));
+        } else {
+            return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
+        }
     }
 
     private function submitEditPhoto(Request $request, Response $response)
@@ -343,7 +354,8 @@ class Admin
         } else {
             $this->flash->addError('admin_index', 'Edited falil.');
         }
-        return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index'));
+
+        return $response->withStatus(302)->withHeader('Location ', $this->router->pathFor('admin_index', [], ['p' => $parsePost['p']]));
     }
 
     private function submitEditAlbum(Request $request, Response $response)
