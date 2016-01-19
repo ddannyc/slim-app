@@ -26,8 +26,8 @@ return [
         'path_scan' => __DIR__ . '/../public/static/scan/',
         // Pagination
         'pagination' => [
-            'per_nums' => 5,
-            'page_display_nums' => 3,
+            'per_nums' => 10,
+            'page_display_nums' => 5,
         ],
     ],
 ];
