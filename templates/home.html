@@ -12,7 +12,7 @@
                     {{flash|raw}}
                     {% for item in datas %}
                     <p class="">
-                        <a href="{{ path_for('albumDetail', {'id': item.id}) }}">
+                        <a href="{{ path_for('album_detail', {'id': item.id}) }}">
                             <img src="{{ staticPath ~ item.cover}}" class="bordered">
                         </a>
                     </p>

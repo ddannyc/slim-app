@@ -7,36 +7,26 @@
 
         <div class="ym-grid">
             <div class="ym-gbox">
-                <form action="{{path_for('photo_action', {'action':action})}}" method="post" class="ym-form"
+                <form action="{{path_for('album_action', {'action':action})}}" method="post" class="ym-form"
                       enctype="multipart/form-data">
                     {% if action =='edit' %}
                     <input type="hidden" name="id" value="{{ id }}">
                     {% else %}
                     <div class="ym-fbox">
-                        <label for="photo">Photo</label>
-                        <input type="file" id="photo" name="photo">
+                        <label for="cover">Cover</label>
+                        <input type="file" id="cover" name="cover">
                     </div>
                     {% endif %}
 
                     <div class="ym-fbox">
-                        <div class="ym-g75">
-                            <label for="album">Album</label>
-                            <select name="album" id="album">
-                                {% for key,val in albums %}
-                                <option value="{{key}}" {% if key== album_id %} selected{% endif %}>{{val}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="ym-gl ym-g20">
-                            <a href="{{ path_for('album_action', {'action': 'add'}) }}" class="ym-button ym-small">Add
-                                an album</a>
-                        </div>
+                        <label for="name">Title</label>
+                        <input type="text" name="name" id="name" value="{{ name }}">
                     </div>
                     <div class="ym-fbox">
                         <label for="is_public">Public or private</label>
                         <select name="is_public" id="is_public">
                             {% for txt,opt in isPublicOptions %}
-                            <option value="{{opt}}"{% if opt == is_public %} selected{% endif %}>{{txt}}</option>
+                            <option value="{{opt}}" {% if opt== is_public %} selected{% endif %}>{{txt}}</option>
                             {% endfor %}
                         </select>
                     </div>

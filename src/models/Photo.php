@@ -77,6 +77,26 @@ class Photo extends Model
         return false;
     }
 
+    public function getPathInfo($userId, $year, $month, array $file)
+    {
+        $pathForDb = $this->initialPath($userId, $year, $month);
+        $pathInfo = [];
+        if ((isset($file['name']) && isset($file['fullName']))) {
+            $pathStatic = $this->settings['path_static'];
+            $extName = pathinfo($file['fullName'], PATHINFO_EXTENSION);
+            $filename = SomeFun::guidv4();
+            $pathInfo = [
+                'path_static' => $pathStatic,
+                'tmpName' => $file['name'],
+                'ext' => $extName,
+                'filename' => $filename,
+                'db' => $pathForDb,
+                'moveTo' => $pathStatic . $pathForDb . $filename . ".$extName"
+            ];
+        }
+        return $pathInfo;
+    }
+
     public function initialPath($userId, $year, $month)
     {
         $pathForDb = sprintf("data/u%s/%s/%s/", $userId, $year, $month);
